@@ -1,0 +1,49 @@
+{
+	"welcome": "Welkom bij de DSA Problem Solver",
+	"settings": {
+		"title": "Instellingen",
+		"description": "Pas het uiterlijk en de voorkeuren van uw applicatie aan",
+		"theme": {
+			"title": "Themamodus",
+			"description": "Kies hoe het applicatiethema zich aanpast aan uw systeemvoorkeuren",
+			"label": "Weergave",
+			"system": "Systeem",
+			"light": "Licht",
+			"dark": "Donker",
+			"systemDescription": "Uw thema past zich automatisch aan aan de weergave-instellingen van uw systeem.",
+			"lightDescription": "De applicatie gebruikt altijd het lichte thema, ongeacht de systeeminstellingen.",
+			"darkDescription": "De applicatie gebruikt altijd het donkere thema, ongeacht de systeeminstellingen."
+		},
+		"colorPalette": {
+			"title": "Kleurenpalet",
+			"description": "Selecteer uw voorkeurskleurenschema voor de applicatie",
+			"label": "Kleurenschema"
+		},
+		"sidebar": {
+			"title": "Zijbalkconfiguratie",
+			"description": "Pas het uiterlijk en gedrag van de zijbalk aan",
+			"state": {
+				"label": "Zijbalkstatus",
+				"expanded": "Uitgevouwen",
+				"collapsed": "Samengevouwen",
+				"expandedDescription": "Zijbalk is volledig zichtbaar",
+				"collapsedDescription": "Zijbalk is geminimaliseerd"
+			},
+			"variant": {
+				"label": "Zijbalkvariant",
+				"default": "Standaard zijbalk",
+				"floating": "Zwevend",
+				"inset": "Ingevoegd",
+				"defaultDescription": "Standaard zijbalklay-out",
+				"floatingDescription": "Zwevende zijbalkoverlay",
+				"insetDescription": "Ingevoegde zijbalk binnen inhoud"
+			}
+		},
+		"language": {
+			"title": "Taal",
+			"description": "Kies uw voorkeurstaal voor de applicatie",
+			"label": "Selecteer taal",
+			"descriptionText": "Het wijzigen van de taal werkt de interfacetekst in de hele applicatie bij."
+		}
+	}
+}

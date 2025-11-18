@@ -1,0 +1,101 @@
+---
+alwaysApply: true
+---
+# Development Standards and Project Structure
+
+Review these guidelines before starting any task to keep the codebase consistent, reusable, and tidy.
+
+## 1. UI Components
+
+-   Rely on **Shadcn UI** components.
+-   Always inspect the existing `/ui` directory before building anything new.
+-   If a component already exists, reuse it instead of duplicating functionality.
+
+## 2. Helper Utilities
+
+-   Store helper and utility logic under `/utils`.
+-   Search the folder for an existing helper before writing a new one.
+-   Prefer reuse to maintain consistent behavior across the app.
+
+## 3. Context Management
+
+-   All **Context API** related code should be placed in the **`/context`** folder.
+-   This includes files related to global state management using React Context.
+
+## 4. Providers
+
+-   All **Provider** files (e.g., Context Providers, Layout Providers, etc.) must be stored in the **`/provider`** folder.
+
+## 5. Shared Components
+
+-   House reusable components in `/components/shared`.
+-   These building blocks should remain general-purpose so multiple pages can consume them.
+
+## 6. Page Implementation
+
+-   Create feature pages in `/components/pages`.
+-   If a page needs private subcomponents, create a sibling `_components` folder:
+
+```
+components/pages/<pageName>/_components/
+```
+
+-   Every page should expose a skeleton loading state using Shadcn’s `Skeleton` component.
+
+## 7. Service Modules
+
+-   Place reusable service code inside the `lib/` directory with namespaced folders.
+-   Recommended pattern:
+    -   `lib/jwt-service/jwt.service.ts`
+    -   `lib/api-service/api.service.ts`
+-   Keep each service focused on a single responsibility and import wherever needed across the app.
+
+---
+
+## 8. Translations
+
+-   Define all locale dictionaries under `i18n/dictionaries` and export them through `i18n/dictionaries.ts`.
+-   Keep the `Locale` union type and `dictionaries` map in sync with every new locale that is added.
+-   Translation hooks/components should resolve dictionaries asynchronously and handle fallbacks gracefully.
+-   Avoid hard-coded strings in pages; consume translations via shared hooks like `useTranslation`.
+
+---
+
+✅ **Reference Layout**
+
+```
+components/
+├─ pages/
+│   ├─ dashboard/
+│   │   ├─ _components/
+│   │   │   ├─ dashboard-card.tsx
+│   │   │   └─ dashboard-skeleton.tsx
+│   │   └─ dashboard-page.tsx
+├─ shared/
+│   └─ button.tsx
+├─ ui/
+│   └─ input.tsx
+├─ context/
+│   ├─ user-context.tsx
+│   └─ react-flow-context.tsx
+├─ provider/
+│   ├─ user-provider.tsx
+│   ├─ layout-provider.tsx
+│   └─ react-flow-provider.tsx
+utils/
+└─ format-date.ts
+lib/
+├─ api-service/
+│   └─ api.service.ts
+├─ jwt-service/
+│   └─ jwt.service.ts
+i18n/
+├─ dictionaries/
+│   ├─ en.json
+│   └─ nl.json
+└─ dictionaries.ts
+```
+
+---
+
+Following this structure keeps the codebase organized, avoids duplication, and makes collaboration smoother.

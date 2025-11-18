@@ -1,0 +1,49 @@
+{
+	"welcome": "Welcome to the DSA Problem Solver",
+	"settings": {
+		"title": "Settings",
+		"description": "Customize your application appearance and preferences",
+		"theme": {
+			"title": "Theme Mode",
+			"description": "Choose how the application theme adapts to your system preferences",
+			"label": "Appearance",
+			"system": "System",
+			"light": "Light",
+			"dark": "Dark",
+			"systemDescription": "Your theme will automatically match your system's appearance settings.",
+			"lightDescription": "Application will always use light theme regardless of system settings.",
+			"darkDescription": "Application will always use dark theme regardless of system settings."
+		},
+		"colorPalette": {
+			"title": "Color Palette",
+			"description": "Select your preferred color scheme for the application",
+			"label": "Color Scheme"
+		},
+		"sidebar": {
+			"title": "Sidebar Configuration",
+			"description": "Customize the sidebar appearance and behavior",
+			"state": {
+				"label": "Sidebar State",
+				"expanded": "Expanded",
+				"collapsed": "Collapsed",
+				"expandedDescription": "Sidebar is fully visible",
+				"collapsedDescription": "Sidebar is minimized"
+			},
+			"variant": {
+				"label": "Sidebar Variant",
+				"default": "Default Sidebar",
+				"floating": "Floating",
+				"inset": "Inset",
+				"defaultDescription": "Standard sidebar layout",
+				"floatingDescription": "Floating sidebar overlay",
+				"insetDescription": "Inset sidebar within content"
+			}
+		},
+		"language": {
+			"title": "Language",
+			"description": "Choose your preferred language for the application",
+			"label": "Select Language",
+			"descriptionText": "Changing the language will update the interface text throughout the application."
+		}
+	}
+}
