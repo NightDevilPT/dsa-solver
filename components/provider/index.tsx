@@ -1,9 +1,5 @@
 "use client";
 
-import React from "react";
-
-import { ThemeProvider } from "./theme-provider/theme-provider";
-import SidebarLayout from "./sidebar-provider/sidebar";
 import type {
 	ColorScheme,
 	SidebarSide,
@@ -11,7 +7,11 @@ import type {
 	SidebarVariant,
 	ThemeMode,
 } from "@/interface/theme.interface";
+import React from "react";
 import type { Locale } from "@/i18n/dictionaries";
+import { navItems } from "./sidebar-provider/route";
+import SidebarLayout from "./sidebar-provider/sidebar";
+import { ThemeProvider } from "./theme-provider/theme-provider";
 
 type RootProviderProps = {
 	children: React.ReactNode;
@@ -41,7 +41,7 @@ const RootProvider = ({
 			defaultSidebarVariant={defaultSidebarVariant}
 			defaultSidebarSide={defaultSidebarSide}
 		>
-			<SidebarLayout>{children}</SidebarLayout>
+			<SidebarLayout navItems={navItems}>{children}</SidebarLayout>
 		</ThemeProvider>
 	);
 };

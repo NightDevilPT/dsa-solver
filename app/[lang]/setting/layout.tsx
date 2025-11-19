@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
-import { Locale } from "@/i18n/dictionaries";
-import { getDictionary } from "@/i18n/dictionaries";
+import { Locale, locales, getDictionary } from "@/i18n/dictionaries";
 
 type Props = {
 	children: React.ReactNode;
-	params: Promise<{ lang: Locale }>;
+	params: Promise<{ lang: string }>;
 };
 
 export async function generateMetadata({
 	params,
 }: {
-	params: Promise<{ lang: Locale }>;
+	params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
-	const { lang } = await params;
+	const { lang: langParam } = await params;
+	const lang = (
+		locales.includes(langParam as Locale) ? langParam : locales[0]
+	) as Locale;
 	const dictionary = await getDictionary(lang);
 	const settings = (dictionary as any)?.settings;
 
@@ -25,7 +27,10 @@ export async function generateMetadata({
 }
 
 export default async function SettingLayout({ children, params }: Props) {
-	const { lang } = await params;
+	const { lang: langParam } = await params;
+	const lang = (
+		locales.includes(langParam as Locale) ? langParam : locales[0]
+	) as Locale;
 
 	return children;
 }
