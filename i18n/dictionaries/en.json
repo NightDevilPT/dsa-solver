@@ -1,5 +1,103 @@
 {
 	"welcome": "Welcome to the DSA Problem Solver",
+	"home": {
+		"header": {
+			"login": "Login",
+			"signup": "Sign Up"
+		},
+		"hero": {
+			"title": "Master Data Structures & Algorithms",
+			"subtitle": "Automate your daily DSA practice with AI-powered solutions and smart automation",
+			"description": "Solve problems, get AI explanations, and automate submissions. Your personal DSA learning assistant.",
+			"cta": {
+				"primary": "Get Started",
+				"secondary": "Learn More"
+			}
+		},
+		"features": {
+			"title": "Powerful Features",
+			"subtitle": "Everything you need to master DSA",
+			"automation": {
+				"title": "Daily Problem Automation",
+				"description": "Set up automated daily problem solving with custom configurations. Choose difficulty, topics, and let the system handle the rest."
+			},
+			"filters": {
+				"title": "Smart Problem Filters",
+				"description": "Filter problems by difficulty, topic, company tags, and more. Find exactly what you need to practice."
+			},
+			"languages": {
+				"title": "Multi-Language Support",
+				"description": "Solve problems in your preferred programming language. Support for Python, Java, C++, JavaScript, and more."
+			},
+			"notifications": {
+				"title": "Email Notifications",
+				"description": "Get daily problem notifications with AI-generated explanations and solutions. Customize what you receive.",
+				"options": {
+					"problemExplanation": "Problem Explanation",
+					"bruteForce": "Brute Force Solution",
+					"optimized": "Optimized Solution",
+					"autoSubmit": "Auto-Submit Answers"
+				}
+			},
+			"ai": {
+				"title": "AI-Powered Solutions",
+				"description": "Get detailed explanations and multiple solution approaches using advanced AI models. Learn from brute force to optimized solutions."
+			},
+			"automationTools": {
+				"title": "Automation Tools",
+				"description": "Automate problem submissions using Puppeteer. Save time and focus on learning while the system handles submissions."
+			}
+		},
+		"howItWorks": {
+			"title": "How It Works",
+			"step1": {
+				"title": "Configure Your Setup",
+				"description": "Set your preferences: difficulty level, topics, programming language, and notification settings."
+			},
+			"step2": {
+				"title": "Get Daily Problems",
+				"description": "Receive curated DSA problems daily based on your configuration and learning goals."
+			},
+			"step3": {
+				"title": "AI-Powered Learning",
+				"description": "Get detailed explanations, multiple solution approaches, and learn from optimized code."
+			},
+			"step4": {
+				"title": "Automated Submission",
+				"description": "Let the system automatically submit your solutions and track your progress."
+			}
+		},
+		"cta": {
+			"title": "Ready to Start Your DSA Journey?",
+			"description": "Join thousands of developers mastering algorithms with our automated platform.",
+			"button": "Start Practicing Now"
+		},
+		"footer": {
+			"description": "Master Data Structures & Algorithms with AI-powered solutions and automated problem solving.",
+			"rights": "All rights reserved.",
+			"terms": "Terms",
+			"privacy": "Privacy",
+			"cookies": "Cookies",
+			"product": {
+				"title": "Product",
+				"features": "Features",
+				"pricing": "Pricing",
+				"documentation": "Documentation"
+			},
+			"company": {
+				"title": "Company",
+				"about": "About",
+				"blog": "Blog",
+				"careers": "Careers"
+			},
+			"support": {
+				"title": "Support",
+				"help": "Help Center",
+				"contact": "Contact",
+				"privacy": "Privacy"
+			}
+		}
+	},
 	"settings": {
 		"title": "Settings",
 		"description": "Customize your application appearance and preferences",

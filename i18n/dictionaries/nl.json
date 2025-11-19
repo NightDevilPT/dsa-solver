@@ -1,5 +1,103 @@
 {
 	"welcome": "Welkom bij de DSA Problem Solver",
+	"home": {
+		"header": {
+			"login": "Inloggen",
+			"signup": "Aanmelden"
+		},
+		"hero": {
+			"title": "Beheers Datastructuren & Algoritmen",
+			"subtitle": "Automatiseer uw dagelijkse DSA-oefening met AI-aangedreven oplossingen en slimme automatisering",
+			"description": "Los problemen op, krijg AI-uitleg en automatiseer inzendingen. Uw persoonlijke DSA-leerassistent.",
+			"cta": {
+				"primary": "Aan de slag",
+				"secondary": "Meer informatie"
+			}
+		},
+		"features": {
+			"title": "Krachtige functies",
+			"subtitle": "Alles wat u nodig heeft om DSA onder de knie te krijgen",
+			"automation": {
+				"title": "Dagelijkse probleemautomatisering",
+				"description": "Stel geautomatiseerde dagelijkse probleemoplossing in met aangepaste configuraties. Kies moeilijkheidsgraad, onderwerpen en laat het systeem de rest afhandelen."
+			},
+			"filters": {
+				"title": "Slimme probleemfilters",
+				"description": "Filter problemen op moeilijkheidsgraad, onderwerp, bedrijfstags en meer. Vind precies wat u nodig heeft om te oefenen."
+			},
+			"languages": {
+				"title": "Ondersteuning voor meerdere talen",
+				"description": "Los problemen op in uw voorkeurstaal. Ondersteuning voor Python, Java, C++, JavaScript en meer."
+			},
+			"notifications": {
+				"title": "E-mailmeldingen",
+				"description": "Ontvang dagelijkse probleemmeldingen met AI-gegenereerde uitleg en oplossingen. Pas aan wat u ontvangt.",
+				"options": {
+					"problemExplanation": "Probleem uitleg",
+					"bruteForce": "Brute Force Oplossing",
+					"optimized": "Geoptimaliseerde Oplossing",
+					"autoSubmit": "Antwoorden automatisch indienen"
+				}
+			},
+			"ai": {
+				"title": "AI-aangedreven oplossingen",
+				"description": "Krijg gedetailleerde uitleg en meerdere oplossingsbenaderingen met behulp van geavanceerde AI-modellen. Leer van brute force tot geoptimaliseerde oplossingen."
+			},
+			"automationTools": {
+				"title": "Automatiseringstools",
+				"description": "Automatiseer probleeminzendingen met Puppeteer. Bespaar tijd en focus op leren terwijl het systeem inzendingen afhandelt."
+			}
+		},
+		"howItWorks": {
+			"title": "Hoe het werkt",
+			"step1": {
+				"title": "Configureer uw instellingen",
+				"description": "Stel uw voorkeuren in: moeilijkheidsniveau, onderwerpen, programmeertaal en meldingsinstellingen."
+			},
+			"step2": {
+				"title": "Krijg dagelijkse problemen",
+				"description": "Ontvang dagelijks samengestelde DSA-problemen op basis van uw configuratie en leerdoelen."
+			},
+			"step3": {
+				"title": "AI-aangedreven leren",
+				"description": "Krijg gedetailleerde uitleg, meerdere oplossingsbenaderingen en leer van geoptimaliseerde code."
+			},
+			"step4": {
+				"title": "Geautomatiseerde inzending",
+				"description": "Laat het systeem automatisch uw oplossingen indienen en uw voortgang bijhouden."
+			}
+		},
+		"cta": {
+			"title": "Klaar om aan uw DSA-reis te beginnen?",
+			"description": "Sluit u aan bij duizenden ontwikkelaars die algoritmen beheersen met ons geautomatiseerde platform.",
+			"button": "Begin nu met oefenen"
+		},
+		"footer": {
+			"description": "Beheers Datastructuren & Algoritmen met AI-aangedreven oplossingen en geautomatiseerde probleemoplossing.",
+			"rights": "Alle rechten voorbehouden.",
+			"terms": "Voorwaarden",
+			"privacy": "Privacy",
+			"cookies": "Cookies",
+			"product": {
+				"title": "Product",
+				"features": "Functies",
+				"pricing": "Prijzen",
+				"documentation": "Documentatie"
+			},
+			"company": {
+				"title": "Bedrijf",
+				"about": "Over ons",
+				"blog": "Blog",
+				"careers": "Carrières"
+			},
+			"support": {
+				"title": "Ondersteuning",
+				"help": "Helpcentrum",
+				"contact": "Contact",
+				"privacy": "Privacy"
+			}
+		}
+	},
 	"settings": {
 		"title": "Instellingen",
 		"description": "Pas het uiterlijk en de voorkeuren van uw applicatie aan",
