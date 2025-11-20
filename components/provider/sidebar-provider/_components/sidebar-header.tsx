@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { useSidebar } from "@/components/ui/sidebar";
-import { Label } from "@/components/ui/label";
-import { Codesandbox } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Codesandbox } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export const SidebarHeader = React.memo(function SidebarHeader() {
 	const { state } = useSidebar();
@@ -23,7 +23,7 @@ export const SidebarHeader = React.memo(function SidebarHeader() {
 			<div
 				className={cn(
 					"flex items-center justify-center shrink-0 rounded-lg transition-all duration-300 ease-in-out",
-					"bg-sidebar-primary/10 text-sidebar-primary",
+					"bg-primary/10 text-primary",
 					"border border-sidebar-border/50",
 					"shadow-sm",
 					isCollapsed

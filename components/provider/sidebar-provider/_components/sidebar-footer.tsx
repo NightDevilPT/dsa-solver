@@ -1,8 +1,5 @@
 "use client";
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import { useSidebar } from "@/components/ui/sidebar";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -12,9 +9,12 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useThemeContext } from "@/components/context/theme-context";
-import { Settings, User, ChevronUp } from "lucide-react";
+import React from "react";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { Settings, User } from "lucide-react";
+import { useSidebar } from "@/components/ui/sidebar";
+import { useThemeContext } from "@/components/context/theme-context";
 
 // Mock user data - replace with actual user context/auth
 const MOCK_USER = {
@@ -49,7 +49,7 @@ const Avatar = React.memo(function Avatar({
 	return (
 		<div
 			className={cn(
-				"flex items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground font-semibold shrink-0",
+				"flex items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold shrink-0",
 				sizeClasses[size]
 			)}
 		>

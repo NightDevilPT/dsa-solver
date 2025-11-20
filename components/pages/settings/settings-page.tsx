@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
 import { ThemeChanger } from "./_components/theme-changer";
 import { SidebarChanger } from "./_components/sidebar-changer";
-import { ColorPaletteSelector } from "./_components/color-palette-selector";
-import { LanguageSelector } from "./_components/language-selector";
 import { SettingsSkeleton } from "./_components/settings-skeleton";
+import { LanguageSelector } from "./_components/language-selector";
+import { ColorPaletteSelector } from "./_components/color-palette-selector";
 
 export function SettingsPage() {
 	const [isMounted, setIsMounted] = useState(false);
@@ -21,28 +21,26 @@ export function SettingsPage() {
 	}
 
 	return (
-		<div className="container h-full overflow-y-auto mx-auto py-4">
-			<Card className="w-full bg-transparent mx-auto pt-4 border-0 shadow-none">
-				<CardContent className="space-y-4">
-					{/* Theme Mode Section */}
-					<ThemeChanger />
+		<Card className="w-full bg-transparent p-0 border-0 shadow-none">
+			<CardContent className="space-y-4 p-0">
+				{/* Theme Mode Section */}
+				<ThemeChanger />
 
-					<Separator />
+				<Separator />
 
-					{/* Language Section */}
-					<LanguageSelector />
+				{/* Language Section */}
+				<LanguageSelector />
 
-					<Separator />
+				<Separator />
 
-					{/* Sidebar Configuration Section */}
-					<SidebarChanger />
+				{/* Sidebar Configuration Section */}
+				<SidebarChanger />
 
-					<Separator />
+				<Separator />
 
-					{/* Color Palette Section */}
-					<ColorPaletteSelector showPreview={true} />
-				</CardContent>
-			</Card>
-		</div>
+				{/* Color Palette Section */}
+				<ColorPaletteSelector showPreview={true} />
+			</CardContent>
+		</Card>
 	);
 }

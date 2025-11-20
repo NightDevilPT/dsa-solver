@@ -13,6 +13,7 @@ import { SidebarFooter } from "./_components/sidebar-footer";
 import { SidebarHeader } from "./_components/sidebar-header";
 import { type NavItem } from "@/interface/navigation.interface";
 import { SidebarNavigation } from "./_components/sidebar-navigation";
+import { SidebarInsetHeader } from "./_components/sidebar-inset-header";
 
 interface SidebarLayoutProps {
 	children: React.ReactNode;
@@ -39,8 +40,8 @@ const SidebarLayout = ({ children, navItems = [] }: SidebarLayoutProps) => {
 			</Sidebar>
 			<SidebarInset className="w-full h-screen">
 				<main className="w-full grid grid-rows-[60px_1fr]">
-					<header>Header</header>
-					<ScrollArea className="w-full h-[calc(100vh-60px)] overflow-auto">
+					<SidebarInsetHeader />
+					<ScrollArea className="w-full h-[calc(100vh-60px)] overflow-auto p-5">
 						{children}
 					</ScrollArea>
 				</main>
