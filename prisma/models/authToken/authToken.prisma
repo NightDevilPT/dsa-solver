@@ -1,0 +1,24 @@
+// AuthToken Model Schema
+// This is the source of truth for the AuthToken model
+// Uses: TokenType, TokenPurpose enums (defined in schema.prisma)
+// Run: npm run prisma:combine to update schema.prisma
+
+model AuthToken {
+  id              String   @id @default(cuid())
+  userId          String
+  token           String   @unique // Hashed OTP or refreshToken
+  tokenType       TokenType
+  purpose         TokenPurpose
+  expiresAt       DateTime
+  usedAt          DateTime?
+  isUsed          Boolean  @default(false)
+  isRevoked       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([token])
+  @@index([userId, isUsed, expiresAt])
+  @@index([expiresAt])
+}
+

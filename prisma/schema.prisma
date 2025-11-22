@@ -12,3 +12,50 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ============================================
+// ENUMS - All enums used across models
+// ============================================
+
+enum TokenType {
+  OTP
+  REFRESH_TOKEN
+}
+
+enum TokenPurpose {
+  LOGIN
+}
+
+enum ProviderType {
+  LEETCODE
+  GFG
+}
+
+enum DeliveryStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  RETRYING
+}
+
+enum ScheduleType {
+  DAILY
+  WEEKLY
+  CUSTOM
+}
+
+enum TaskStatus {
+  PENDING
+  ACTIVE
+  PAUSED
+  COMPLETED
+  FAILED
+}
+
+enum ProblemSelection {
+  RANDOM
+  DAILY_CHALLENGE
+  FILTER_BASED
+  SPECIFIC_PROBLEM
+}
