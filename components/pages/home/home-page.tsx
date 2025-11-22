@@ -29,53 +29,48 @@ import { HomeHeader } from "./_components/home-header";
 import SpotlightCard from "@/components/ui/SpotlightCard";
 
 export const HomePage = React.memo(function HomePage() {
-	const { dictionary } = useTranslation();
-	const home = (dictionary as any)?.home;
-
-	if (!home) {
-		return null;
-	}
+	const { t } = useTranslation();
 
 	const features = [
 		{
 			icon: Settings,
-			title: home.features?.automation?.title,
-			description: home.features?.automation?.description,
+			title: t("home.features.automation.title"),
+			description: t("home.features.automation.description"),
 			color: "text-blue-500",
 			bgColor: "bg-blue-500/10",
 		},
 		{
 			icon: Filter,
-			title: home.features?.filters?.title,
-			description: home.features?.filters?.description,
+			title: t("home.features.filters.title"),
+			description: t("home.features.filters.description"),
 			color: "text-purple-500",
 			bgColor: "bg-purple-500/10",
 		},
 		{
 			icon: Code,
-			title: home.features?.languages?.title,
-			description: home.features?.languages?.description,
+			title: t("home.features.languages.title"),
+			description: t("home.features.languages.description"),
 			color: "text-green-500",
 			bgColor: "bg-green-500/10",
 		},
 		{
 			icon: Mail,
-			title: home.features?.notifications?.title,
-			description: home.features?.notifications?.description,
+			title: t("home.features.notifications.title"),
+			description: t("home.features.notifications.description"),
 			color: "text-orange-500",
 			bgColor: "bg-orange-500/10",
 		},
 		{
 			icon: Bot,
-			title: home.features?.ai?.title,
-			description: home.features?.ai?.description,
+			title: t("home.features.ai.title"),
+			description: t("home.features.ai.description"),
 			color: "text-pink-500",
 			bgColor: "bg-pink-500/10",
 		},
 		{
 			icon: Zap,
-			title: home.features?.automationTools?.title,
-			description: home.features?.automationTools?.description,
+			title: t("home.features.automationTools.title"),
+			description: t("home.features.automationTools.description"),
 			color: "text-yellow-500",
 			bgColor: "bg-yellow-500/10",
 		},
@@ -84,26 +79,26 @@ export const HomePage = React.memo(function HomePage() {
 	const steps = [
 		{
 			icon: Settings,
-			title: home.howItWorks?.step1?.title,
-			description: home.howItWorks?.step1?.description,
+			title: t("home.howItWorks.step1.title"),
+			description: t("home.howItWorks.step1.description"),
 			step: "01",
 		},
 		{
 			icon: BookOpen,
-			title: home.howItWorks?.step2?.title,
-			description: home.howItWorks?.step2?.description,
+			title: t("home.howItWorks.step2.title"),
+			description: t("home.howItWorks.step2.description"),
 			step: "02",
 		},
 		{
 			icon: Sparkles,
-			title: home.howItWorks?.step3?.title,
-			description: home.howItWorks?.step3?.description,
+			title: t("home.howItWorks.step3.title"),
+			description: t("home.howItWorks.step3.description"),
 			step: "03",
 		},
 		{
 			icon: Rocket,
-			title: home.howItWorks?.step4?.title,
-			description: home.howItWorks?.step4?.description,
+			title: t("home.howItWorks.step4.title"),
+			description: t("home.howItWorks.step4.description"),
 			step: "04",
 		},
 	];
@@ -126,38 +121,30 @@ export const HomePage = React.memo(function HomePage() {
 							className="mb-2 px-4 py-1.5 text-sm font-medium border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
 						>
 							<Sparkles className="h-3.5 w-3.5 mr-2" />
-							AI-Powered DSA Learning
+							{t("home.hero.badge")}
 						</Badge>
 						<h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent">
-							{typeof home.hero?.title === "string" ? home.hero.title : ""}
+							{t("home.hero.title")}
 						</h1>
 						<p className="text-xl md:text-2xl lg:text-3xl text-muted-foreground max-w-3xl font-medium leading-relaxed">
-							{typeof home.hero?.subtitle === "string"
-								? home.hero.subtitle
-								: ""}
+							{t("home.hero.subtitle")}
 						</p>
 						<p className="text-base md:text-lg text-muted-foreground/80 max-w-2xl leading-relaxed">
-							{typeof home.hero?.description === "string"
-								? home.hero.description
-								: ""}
+							{t("home.hero.description")}
 						</p>
 						<div className="flex flex-col sm:flex-row gap-4 mt-6">
 							<Button 
 								size="lg" 
 								className="text-base px-8 h-12 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
 							>
-								{typeof home.hero?.cta?.primary === "string"
-									? home.hero.cta.primary
-									: ""}
+								{t("home.hero.cta.primary")}
 							</Button>
 							<Button 
 								size="lg" 
 								variant="outline" 
 								className="text-base px-8 h-12 border-2 hover:bg-accent/50 transition-all duration-200"
 							>
-								{typeof home.hero?.cta?.secondary === "string"
-									? home.hero.cta.secondary
-									: ""}
+								{t("home.hero.cta.secondary")}
 							</Button>
 						</div>
 					</div>
@@ -169,14 +156,10 @@ export const HomePage = React.memo(function HomePage() {
 				<div className="container mx-auto max-w-7xl">
 					<div className="flex flex-col items-center text-center gap-4 mb-16">
 						<h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-							{typeof home.features?.title === "string"
-								? home.features.title
-								: ""}
+							{t("home.features.title")}
 						</h2>
 						<p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-							{typeof home.features?.subtitle === "string"
-								? home.features.subtitle
-								: ""}
+							{t("home.features.subtitle")}
 						</p>
 					</div>
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -198,14 +181,10 @@ export const HomePage = React.memo(function HomePage() {
 										</div>
 										<div>
 											<h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-												{typeof feature.title === "string"
-													? feature.title
-													: ""}
+												{feature.title}
 											</h3>
 											<p className="text-base text-muted-foreground leading-relaxed">
-												{typeof feature.description === "string"
-													? feature.description
-													: ""}
+												{feature.description}
 											</p>
 										</div>
 									</div>
@@ -221,9 +200,7 @@ export const HomePage = React.memo(function HomePage() {
 				<div className="container mx-auto max-w-7xl">
 					<div className="flex flex-col items-center text-center gap-4 mb-16">
 						<h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-							{typeof home.howItWorks?.title === "string"
-								? home.howItWorks.title
-								: ""}
+							{t("home.howItWorks.title")}
 						</h2>
 					</div>
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
@@ -248,12 +225,10 @@ export const HomePage = React.memo(function HomePage() {
 										</div>
 										<div>
 											<h3 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">
-												{typeof step.title === "string" ? step.title : ""}
+												{step.title}
 											</h3>
 											<p className="text-base text-muted-foreground leading-relaxed">
-												{typeof step.description === "string"
-													? step.description
-													: ""}
+												{step.description}
 											</p>
 										</div>
 									</div>
@@ -279,12 +254,10 @@ export const HomePage = React.memo(function HomePage() {
 								</div>
 							</div>
 							<CardTitle className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
-								{typeof home.cta?.title === "string" ? home.cta.title : ""}
+								{t("home.cta.title")}
 							</CardTitle>
 							<CardDescription className="text-base md:text-lg mt-2 max-w-2xl mx-auto leading-relaxed">
-								{typeof home.cta?.description === "string"
-									? home.cta.description
-									: ""}
+								{t("home.cta.description")}
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="flex justify-center relative z-10">
@@ -293,7 +266,7 @@ export const HomePage = React.memo(function HomePage() {
 								className="text-base px-10 h-12 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
 							>
 								<Rocket className="h-5 w-5 mr-2" />
-								{typeof home.cta?.button === "string" ? home.cta.button : ""}
+								{t("home.cta.button")}
 							</Button>
 						</CardContent>
 					</Card>

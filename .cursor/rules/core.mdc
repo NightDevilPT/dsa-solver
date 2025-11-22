@@ -8,28 +8,35 @@ Review these guidelines before starting any task to keep the codebase consistent
 ## 1. UI Components
 
 -   Rely on **Shadcn UI** components.
--   Always inspect the existing `/ui` directory before building anything new.
+-   Always inspect the existing `/components/ui` directory before building anything new.
 -   If a component already exists, reuse it instead of duplicating functionality.
+-   Use `cn()` utility from `@/lib/utils` for conditional className merging.
 
 ## 2. Helper Utilities
 
 -   Store helper and utility logic under `/utils`.
 -   Search the folder for an existing helper before writing a new one.
 -   Prefer reuse to maintain consistent behavior across the app.
+-   Use TypeScript for all utility functions with proper type definitions.
 
 ## 3. Context Management
 
--   All **Context API** related code should be placed in the **`/context`** folder.
+-   All **Context API** related code should be placed in the **`/components/context`** folder.
 -   This includes files related to global state management using React Context.
+-   Export both the Context Provider component and a custom hook (e.g., `useThemeContext`).
+-   Always provide proper TypeScript types for context values.
 
 ## 4. Providers
 
--   All **Provider** files (e.g., Context Providers, Layout Providers, etc.) must be stored in the **`/provider`** folder.
+-   All **Provider** files (e.g., Context Providers, Layout Providers, etc.) must be stored in the **`/components/provider`** folder.
+-   The main `RootProvider` should be exported from `/components/provider/index.tsx`.
+-   Providers should accept default props and handle localStorage persistence where applicable.
 
 ## 5. Shared Components
 
 -   House reusable components in `/components/shared`.
 -   These building blocks should remain general-purpose so multiple pages can consume them.
+-   Avoid page-specific logic in shared components.
 
 ## 6. Page Implementation
 
@@ -40,7 +47,11 @@ Review these guidelines before starting any task to keep the codebase consistent
 components/pages/<pageName>/_components/
 ```
 
--   Every page should expose a skeleton loading state using Shadcn’s `Skeleton` component.
+-   Every page should expose a skeleton loading state using Shadcn's `Skeleton` component.
+-   Pages should be client components (`"use client"`) when they use hooks or interactivity.
+-   Use `React.memo` for performance optimization when appropriate.
+-   **All text content must use translations** via the `t()` function from `useTranslation` hook.
+-   Never hard-code user-facing strings; always add them to translation dictionaries.
 
 ## 7. Service Modules
 
@@ -48,53 +59,342 @@ components/pages/<pageName>/_components/
 -   Recommended pattern:
     -   `lib/jwt-service/jwt.service.ts`
     -   `lib/api-service/api.service.ts`
+    -   `lib/email-service/email.service.ts`
+    -   `lib/provider-service/leetcode.service.ts`
+    -   `lib/provider-service/gfg.service.ts`
 -   Keep each service focused on a single responsibility and import wherever needed across the app.
+-   Services should be pure functions or classes with clear interfaces.
 
----
+## 8. Database & Prisma
 
-## 8. Translations
+-   Prisma schema is located in `/prisma/schema.prisma`.
+-   Prisma client is generated to `/lib/generated/prisma`.
+-   Use the Prisma client from `/lib/prisma-client/index.ts` for database operations.
+-   Always use the Prisma adapter pattern for PostgreSQL connections.
+-   Seed scripts should be placed in `/prisma/seed/seed.ts`.
+-   Use TypeScript types generated from Prisma models.
 
--   Define all locale dictionaries under `i18n/dictionaries` and export them through `i18n/dictionaries.ts`.
+## 9. API Routes & Server Actions
+
+-   API routes should be placed in `/app/api` following Next.js App Router conventions.
+-   Use Server Actions for form submissions and mutations when possible.
+-   API routes should handle authentication, validation, and error responses.
+-   Use Zod for request/response validation.
+-   Return consistent error formats across all API endpoints.
+
+## 10. Background Jobs & Task Scheduling
+
+-   Use **Inngest** for background jobs and scheduled tasks.
+-   Inngest functions should be organized in `/lib/inngest/functions/`.
+-   Export all functions from `/lib/inngest/functions/index.ts`.
+-   Inngest client configuration should be in `/lib/inngest/client.ts`.
+-   API route for Inngest should be at `/app/api/inngest/route.ts`.
+-   Use Inngest for:
+    -   Daily problem fetching from providers (LeetCode, GFG, etc.)
+    -   Email notifications
+    -   Automated submissions
+    -   Scheduled tasks
+
+## 11. DSA Provider Integration
+
+-   Provider-specific code should be organized in `/lib/provider-service/`.
+-   Each provider (LeetCode, GFG, etc.) should have its own service file:
+    -   `lib/provider-service/leetcode.service.ts`
+    -   `lib/provider-service/gfg.service.ts`
+-   Provider pages are located at `/app/[lang]/dashboard/providers/[providerType]/page.tsx`.
+-   Navigation items for providers are defined in `/components/provider/sidebar-provider/route.tsx`.
+-   Provider services should handle:
+    -   Problem fetching
+    -   Problem filtering (difficulty, topics, tags)
+    -   Solution submission
+    -   Progress tracking
+
+## 12. Translations & Internationalization
+
+-   Define all locale dictionaries under `i18n/dictionaries/` and export them through `i18n/dictionaries.ts`.
 -   Keep the `Locale` union type and `dictionaries` map in sync with every new locale that is added.
 -   Translation hooks/components should resolve dictionaries asynchronously and handle fallbacks gracefully.
--   Avoid hard-coded strings in pages; consume translations via shared hooks like `useTranslation`.
+-   **NEVER use hard-coded strings** in components; always use translations.
+-   The app uses locale-based routing: `/app/[lang]/` for all routes.
+-   Always use the `useTranslation` hook from `/hooks/useTranslation.ts` for translations.
+
+### Translation Hook Usage
+
+-   Import and use the hook: `const { t } = useTranslation();`
+-   Use the `t()` function with dot-separated paths to access nested translations:
+    ```typescript
+    // ✅ CORRECT - Clean and type-safe
+    const { t } = useTranslation();
+    <h1>{t("home.hero.title")}</h1>
+    <Button>{t("home.header.login")}</Button>
+    ```
+
+-   **NEVER use verbose type checking patterns**:
+    ```typescript
+    // ❌ WRONG - Don't do this
+    {typeof home?.header?.login === "string" ? home.header.login : "Login"}
+    
+    // ✅ CORRECT - Use t() function
+    {t("home.header.login")}
+    ```
+
+-   The `t()` function automatically:
+    -   Safely navigates nested dictionary paths
+    -   Returns a string (empty string if path not found)
+    -   Handles type checking internally
+    -   Is memoized for performance
+
+### Translation Key Structure
+
+-   Use dot-separated paths that match the JSON structure:
+    -   `"home.hero.title"` → `home.hero.title` in JSON
+    -   `"home.footer.social.github"` → `home.footer.social.github` in JSON
+    -   `"settings.theme.light"` → `settings.theme.light` in JSON
+
+-   Organize translations by feature/page:
+    ```json
+    {
+      "home": {
+        "brand": { "name": "...", "tagline": "..." },
+        "header": { "login": "...", "signup": "..." },
+        "hero": { "title": "...", "subtitle": "..." },
+        "footer": { "description": "...", "copyright": "..." }
+      }
+    }
+    ```
+
+### Dynamic Values in Translations
+
+-   For dynamic values (like years, counts), use placeholder replacement:
+    ```typescript
+    // In translation file: "copyright": "© {year} DSA Solver. All rights reserved."
+    {t("home.footer.copyright").replace("{year}", currentYear.toString())}
+    ```
+
+-   Always provide translations for both English (`en.json`) and Dutch (`nl.json`).
+-   Keep translation keys consistent across all locale files.
+-   Use descriptive, hierarchical keys that reflect the component structure.
+
+### Translation Examples
+
+```typescript
+// ✅ Component with translations
+"use client";
+import { useTranslation } from "@/hooks/useTranslation";
+
+export function MyComponent() {
+  const { t } = useTranslation();
+  
+  return (
+    <div>
+      <h1>{t("home.hero.title")}</h1>
+      <p>{t("home.hero.description")}</p>
+      <Button>{t("home.header.login")}</Button>
+    </div>
+  );
+}
+```
+
+```json
+// Translation file structure (en.json)
+{
+  "home": {
+    "hero": {
+      "title": "Master Data Structures & Algorithms",
+      "description": "Your description here"
+    },
+    "header": {
+      "login": "Login"
+    }
+  }
+}
+```
+
+## 13. TypeScript Interfaces
+
+-   All TypeScript interfaces should be placed in the `/interface` directory.
+-   Use descriptive names and export them for reuse.
+-   Examples:
+    -   `/interface/theme.interface.ts` - Theme-related types
+    -   `/interface/navigation.interface.ts` - Navigation types
+    -   `/interface/user.interface.ts` - User-related types (if needed)
+    -   `/interface/task.interface.ts` - Task scheduling types (if needed)
+
+## 14. Custom Hooks
+
+-   Custom React hooks should be placed in the `/hooks` directory.
+-   Use descriptive names prefixed with `use` (e.g., `useTranslation`, `useMobile`).
+-   Hooks should be reusable and follow React hooks rules.
+-   Export hooks as named exports.
+
+## 15. Email & Notifications
+
+-   Email service should be implemented in `/lib/email-service/email.service.ts`.
+-   Email notifications should be triggered via Inngest functions for async processing.
+-   Support email customization based on user preferences:
+    -   Problem explanations
+    -   Brute force solutions
+    -   Optimized solutions
+    -   Auto-submit confirmations
+
+## 16. Authentication & Authorization
+
+-   Authentication pages are located at `/app/[lang]/auth/`:
+    -   `/app/[lang]/auth/login/page.tsx`
+    -   `/app/[lang]/auth/signup/page.tsx`
+    -   `/app/[lang]/auth/update/page.tsx`
+-   Use React Hook Form with Zod validation for forms.
+-   JWT service should be in `/lib/jwt-service/jwt.service.ts` if needed.
+
+## 17. Routing & Navigation
+
+-   All routes are locale-prefixed: `/[lang]/...`
+-   Dashboard routes are under `/app/[lang]/dashboard/`.
+-   Navigation items are defined in `/components/provider/sidebar-provider/route.tsx`.
+-   Use Next.js `Link` component for client-side navigation.
+-   Use `usePathname` from `next/navigation` for active route detection.
+
+## 18. Styling & Theming
+
+-   Use Tailwind CSS for styling.
+-   Theme management is handled via `/components/context/theme-context.tsx`.
+-   Support light, dark, and system theme modes.
+-   Support multiple color schemes (default, blue, green, orange, red, rose, violet, yellow).
+-   Sidebar configuration (state, variant, side) is managed through theme context.
+-   Use CSS variables for theme colors defined in `globals.css`.
+
+## 19. Form Handling
+
+-   Use React Hook Form (`react-hook-form`) for all forms.
+-   Use Zod (`zod`) for schema validation.
+-   Use `@hookform/resolvers` for Zod integration.
+-   Forms should be properly typed with TypeScript.
+
+## 20. Error Handling
+
+-   Use try-catch blocks for async operations.
+-   Provide user-friendly error messages via toast notifications (Sonner).
+-   Log errors appropriately for debugging.
+-   Handle loading and error states in UI components.
 
 ---
 
 ✅ **Reference Layout**
 
 ```
+app/
+├─ [lang]/
+│   ├─ auth/
+│   │   ├─ login/page.tsx
+│   │   ├─ signup/page.tsx
+│   │   └─ update/page.tsx
+│   ├─ dashboard/
+│   │   ├─ providers/
+│   │   │   ├─ [providerType]/page.tsx
+│   │   │   └─ page.tsx
+│   │   ├─ setting/page.tsx
+│   │   └─ page.tsx
+│   ├─ layout.tsx
+│   └─ page.tsx
+├─ api/
+│   └─ inngest/route.ts
 components/
 ├─ pages/
-│   ├─ dashboard/
+│   ├─ home/
 │   │   ├─ _components/
-│   │   │   ├─ dashboard-card.tsx
-│   │   │   └─ dashboard-skeleton.tsx
-│   │   └─ dashboard-page.tsx
+│   │   │   ├─ home-footer.tsx
+│   │   │   ├─ home-header.tsx
+│   │   │   └─ theme-toggle-compact.tsx
+│   │   ├─ home-page-skeleton.tsx
+│   │   └─ home-page.tsx
+│   └─ settings/
+│       ├─ _components/
+│       │   ├─ color-palette-selector.tsx
+│       │   ├─ language-selector.tsx
+│       │   ├─ settings-skeleton.tsx
+│       │   ├─ sidebar-changer.tsx
+│       │   └─ theme-changer.tsx
+│       └─ settings-page.tsx
 ├─ shared/
-│   └─ button.tsx
+│   ├─ language-switcher.tsx
+│   └─ theme-toggle.tsx
 ├─ ui/
-│   └─ input.tsx
+│   └─ [all shadcn components]
 ├─ context/
-│   ├─ user-context.tsx
-│   └─ react-flow-context.tsx
+│   └─ theme-context.tsx
 ├─ provider/
-│   ├─ user-provider.tsx
-│   ├─ layout-provider.tsx
-│   └─ react-flow-provider.tsx
-utils/
-└─ format-date.ts
+│   ├─ index.tsx
+│   ├─ sidebar-provider/
+│   │   ├─ _components/
+│   │   │   ├─ sidebar-footer.tsx
+│   │   │   ├─ sidebar-header.tsx
+│   │   │   ├─ sidebar-inset-header.tsx
+│   │   │   ├─ sidebar-navigation.tsx
+│   │   │   └─ sidebar-navitem.tsx
+│   │   ├─ route.tsx
+│   │   └─ sidebar.tsx
+│   └─ theme-provider/
+│       └─ theme-provider.tsx
+hooks/
+├─ use-mobile.ts
+└─ useTranslation.ts
 lib/
-├─ api-service/
-│   └─ api.service.ts
-├─ jwt-service/
-│   └─ jwt.service.ts
+├─ generated/prisma/
+│   └─ [prisma generated files]
+├─ prisma-client/
+│   └─ index.ts
+├─ inngest/
+│   ├─ client.ts
+│   └─ functions/
+│       ├─ index.ts
+│       └─ [function files]
+├─ provider-service/
+│   ├─ leetcode.service.ts
+│   └─ gfg.service.ts
+├─ email-service/
+│   └─ email.service.ts
+└─ utils.ts
+interface/
+├─ navigation.interface.ts
+└─ theme.interface.ts
 i18n/
 ├─ dictionaries/
 │   ├─ en.json
 │   └─ nl.json
 └─ dictionaries.ts
+prisma/
+├─ schema.prisma
+└─ seed/
+    └─ seed.ts
+utils/
+└─ [utility files]
 ```
+
+---
+
+## Project-Specific Guidelines
+
+### DSA Problem Solver Features
+
+1. **Task Scheduling**: Users can schedule tasks to solve daily problems from various providers.
+2. **Provider Support**: Currently supports LeetCode and GFG, with more providers planned.
+3. **Email Automation**: Trigger emails with problem details, explanations, and solutions.
+4. **AI Integration**: AI-powered solutions and explanations (to be implemented).
+5. **Automation Tools**: Automated problem submissions using browser automation (Puppeteer).
+
+### Development Workflow
+
+1. Always check existing code before creating new functionality.
+2. Follow TypeScript strict mode guidelines.
+3. Use ESLint for code quality.
+4. Test components in both light and dark themes.
+5. **Translation Requirements**:
+    -   **NEVER** hard-code strings in components
+    -   Always use `const { t } = useTranslation()` and `t("key.path")` pattern
+    -   Add translations to both `en.json` and `nl.json` files
+    -   Use descriptive, hierarchical translation keys
+    -   Test with different locales (currently `en` and `nl`)
+6. Before committing, verify all user-facing text uses translations.
 
 ---
 

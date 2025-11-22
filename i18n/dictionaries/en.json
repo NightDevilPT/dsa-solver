@@ -1,11 +1,19 @@
 {
 	"welcome": "Welcome to the DSA Problem Solver",
 	"home": {
+		"brand": {
+			"name": "DSA Solver",
+			"tagline": "Data Structures & Algorithms"
+		},
 		"header": {
 			"login": "Login",
 			"signup": "Sign Up"
 		},
+		"theme": {
+			"toggle": "Toggle theme"
+		},
 		"hero": {
+			"badge": "AI-Powered DSA Learning",
 			"title": "Master Data Structures & Algorithms",
 			"subtitle": "Automate your daily DSA practice with AI-powered solutions and smart automation",
 			"description": "Solve problems, get AI explanations, and automate submissions. Your personal DSA learning assistant.",
@@ -74,10 +82,17 @@
 		},
 		"footer": {
 			"description": "Master Data Structures & Algorithms with AI-powered solutions and automated problem solving.",
+			"copyright": "© {year} DSA Solver. All rights reserved.",
 			"rights": "All rights reserved.",
 			"terms": "Terms",
 			"privacy": "Privacy",
 			"cookies": "Cookies",
+			"social": {
+				"github": "GitHub",
+				"twitter": "Twitter",
+				"linkedin": "LinkedIn",
+				"email": "Email"
+			},
 			"product": {
 				"title": "Product",
 				"features": "Features",

@@ -13,8 +13,7 @@ import { LanguageSwitcher } from "@/components/shared/language-switcher";
 
 export const HomeHeader = React.memo(function HomeHeader() {
 	const { locale } = useThemeContext();
-	const { dictionary } = useTranslation();
-	const home = (dictionary as any)?.home;
+	const { t } = useTranslation();
 
 	const buildPath = React.useCallback(
 		(path: string) => {
@@ -37,10 +36,10 @@ export const HomeHeader = React.memo(function HomeHeader() {
 						</div>
 						<div className="flex flex-col gap-0.5">
 							<Label className="text-base font-bold text-foreground leading-tight tracking-tight">
-								DSA Solver
+								{t("home.brand.name")}
 							</Label>
 							<Label className="text-xs font-medium text-muted-foreground leading-relaxed hidden sm:block">
-								Data Structures & Algorithms
+								{t("home.brand.tagline")}
 							</Label>
 						</div>
 					</Link>
@@ -54,17 +53,13 @@ export const HomeHeader = React.memo(function HomeHeader() {
 							asChild
 							className="hidden sm:flex"
 						>
-							<Link href={buildPath("/login")}>
-								{typeof home?.header?.login === "string"
-									? home.header.login
-									: "Login"}
+							<Link href={buildPath("/auth/login")}>
+								{t("home.header.login")}
 							</Link>
 						</Button>
 						<Button size="default" asChild>
-							<Link href={buildPath("/signup")}>
-								{typeof home?.header?.signup === "string"
-									? home.header.signup
-									: "Sign Up"}
+							<Link href={buildPath("/auth/signup")}>
+								{t("home.header.signup")}
 							</Link>
 						</Button>
 						<Separator orientation="vertical" className="w-1" />

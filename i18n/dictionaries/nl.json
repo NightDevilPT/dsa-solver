@@ -1,11 +1,19 @@
 {
 	"welcome": "Welkom bij de DSA Problem Solver",
 	"home": {
+		"brand": {
+			"name": "DSA Solver",
+			"tagline": "Datastructuren & Algoritmen"
+		},
 		"header": {
 			"login": "Inloggen",
 			"signup": "Aanmelden"
 		},
+		"theme": {
+			"toggle": "Thema wisselen"
+		},
 		"hero": {
+			"badge": "AI-aangedreven DSA-leren",
 			"title": "Beheers Datastructuren & Algoritmen",
 			"subtitle": "Automatiseer uw dagelijkse DSA-oefening met AI-aangedreven oplossingen en slimme automatisering",
 			"description": "Los problemen op, krijg AI-uitleg en automatiseer inzendingen. Uw persoonlijke DSA-leerassistent.",
@@ -74,10 +82,17 @@
 		},
 		"footer": {
 			"description": "Beheers Datastructuren & Algoritmen met AI-aangedreven oplossingen en geautomatiseerde probleemoplossing.",
+			"copyright": "© {year} DSA Solver. Alle rechten voorbehouden.",
 			"rights": "Alle rechten voorbehouden.",
 			"terms": "Voorwaarden",
 			"privacy": "Privacy",
 			"cookies": "Cookies",
+			"social": {
+				"github": "GitHub",
+				"twitter": "Twitter",
+				"linkedin": "LinkedIn",
+				"email": "E-mail"
+			},
 			"product": {
 				"title": "Product",
 				"features": "Functies",

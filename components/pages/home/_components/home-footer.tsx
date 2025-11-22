@@ -9,8 +9,7 @@ import { Codesandbox, Github, Twitter, Linkedin, Mail } from "lucide-react";
 
 export const HomeFooter = React.memo(function HomeFooter() {
 	const { locale } = useThemeContext();
-	const { dictionary } = useTranslation();
-	const home = (dictionary as any)?.home;
+	const { t } = useTranslation();
 
 	const buildPath = React.useCallback(
 		(path: string) => {
@@ -22,10 +21,10 @@ export const HomeFooter = React.memo(function HomeFooter() {
 	const currentYear = new Date().getFullYear();
 
 	const socialLinks = [
-		{ icon: Github, href: "https://github.com", label: "GitHub" },
-		{ icon: Twitter, href: "https://twitter.com", label: "Twitter" },
-		{ icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
-		{ icon: Mail, href: "mailto:support@dsasolver.com", label: "Email" },
+		{ icon: Github, href: "https://github.com", label: t("home.footer.social.github") },
+		{ icon: Twitter, href: "https://twitter.com", label: t("home.footer.social.twitter") },
+		{ icon: Linkedin, href: "https://linkedin.com", label: t("home.footer.social.linkedin") },
+		{ icon: Mail, href: "mailto:support@dsasolver.com", label: t("home.footer.social.email") },
 	];
 
 	return (
@@ -47,17 +46,15 @@ export const HomeFooter = React.memo(function HomeFooter() {
 								</div>
 								<div className="flex flex-col gap-0.5">
 									<Label className="text-base font-bold text-foreground leading-tight tracking-tight">
-										DSA Solver
+										{t("home.brand.name")}
 									</Label>
 									<Label className="text-xs font-medium text-muted-foreground leading-relaxed">
-										Data Structures & Algorithms
+										{t("home.brand.tagline")}
 									</Label>
 								</div>
 							</Link>
 							<p className="text-sm text-muted-foreground mb-6 max-w-md">
-								{typeof home?.footer?.description === "string"
-									? home.footer.description
-									: "Master Data Structures & Algorithms with AI-powered solutions and automated problem solving."}
+								{t("home.footer.description")}
 							</p>
 						</div>
 
@@ -86,35 +83,26 @@ export const HomeFooter = React.memo(function HomeFooter() {
 				<div className="border-t py-6">
 					<div className="flex flex-col md:flex-row items-center justify-between gap-4">
 						<p className="text-sm text-muted-foreground text-center md:text-left">
-							© {currentYear} DSA Solver.{" "}
-							{typeof home?.footer?.rights === "string"
-								? home.footer.rights
-								: "All rights reserved."}
+							{t("home.footer.copyright").replace("{year}", currentYear.toString())}
 						</p>
 						<div className="flex items-center gap-6 text-sm text-muted-foreground">
 							<Link
 								href={buildPath("/terms")}
 								className="hover:text-foreground transition-colors"
 							>
-								{typeof home?.footer?.terms === "string"
-									? home.footer.terms
-									: "Terms"}
+								{t("home.footer.terms")}
 							</Link>
 							<Link
 								href={buildPath("/privacy")}
 								className="hover:text-foreground transition-colors"
 							>
-								{typeof home?.footer?.privacy === "string"
-									? home.footer.privacy
-									: "Privacy"}
+								{t("home.footer.privacy")}
 							</Link>
 							<Link
 								href={buildPath("/cookies")}
 								className="hover:text-foreground transition-colors"
 							>
-								{typeof home?.footer?.cookies === "string"
-									? home.footer.cookies
-									: "Cookies"}
+								{t("home.footer.cookies")}
 							</Link>
 						</div>
 					</div>
