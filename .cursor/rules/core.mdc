@@ -5,6 +5,12 @@ alwaysApply: true
 
 Review these guidelines before starting any task to keep the codebase consistent, reusable, and tidy.
 
+## 0. Documentation Files
+
+-   **NEVER create markdown (.md) files unless explicitly requested by the user.**
+-   Do not create README.md, documentation files, or any .md files without explicit instruction.
+-   Focus on code implementation rather than documentation unless specifically asked.
+
 ## 1. UI Components
 
 -   Rely on **Shadcn UI** components.

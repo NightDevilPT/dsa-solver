@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "docker:up": "docker-compose -p dsa-solver up -d --build",
+    "docker:down": "docker-compose -p dsa-solver down",
+    "docker:clean": "docker-compose -p dsa-solver down --rmi all -v --remove-orphans && docker image prune -f && docker volume prune -f && docker network prune -f"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
