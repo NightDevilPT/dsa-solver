@@ -43,6 +43,7 @@ model Problem {
   formattedAt DateTime?   // When AI formatted this problem
   aiModel     String?     // Which AI model was used (e.g., "gemini-2.0-flash")
   aiConfidence Float?     // AI confidence score (0-1)
+  tokensUsed  Int?        // Number of tokens used for formatting (for cost optimization)
   
   // Relations
   logs ProblemLog[]

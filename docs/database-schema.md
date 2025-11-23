@@ -132,7 +132,7 @@ model NotificationConfig {
   includeOptimized  Boolean  @default(false)
   includeHints      Boolean  @default(false)
   autoSubmit        Boolean  @default(false)
-  emailTemplate   String?
+  autoSubmitTime    String?  // Time in HH:mm format (e.g., "09:00" for 9 AM) - Required when autoSubmit is true
   preferredLanguage String @default("en")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -140,6 +140,10 @@ model NotificationConfig {
   providerConfig ProviderConfig @relation(fields: [providerConfigId], references: [id], onDelete: Cascade)
 }
 ```
+
+**Key Fields:**
+- `autoSubmit`: When `true`, automatically submits solution code to the provider
+- `autoSubmitTime`: Time of day to trigger auto-submit (format: "HH:mm", e.g., "09:00" for 9 AM). Required when `autoSubmit` is `true`. Used by cron jobs to schedule automatic submissions.
 
 ---
 

@@ -17,9 +17,10 @@ export interface AIProblemResponse {
 
 	// Solutions (if requested)
 	solutions?: {
-		bruteForce: AISolutionResponse;
-		optimized: AISolutionResponse;
+		bruteForce?: AISolutionResponse;
+		optimized?: AISolutionResponse;
 		alternative?: AISolutionResponse[];
+		bestPractice?: AISolutionResponse;
 	};
 
 	// Explanations (if requested)
@@ -29,6 +30,12 @@ export interface AIProblemResponse {
 		stepByStep: AIExplanationStep[];
 		keyInsights: string[];
 		commonMistakes: string[];
+		relatedProblems?: Array<{
+			title: string;
+			url: string;
+			difficulty: string;
+			similarity: number;
+		}>;
 	};
 
 	// Hints (if requested)
@@ -50,28 +57,41 @@ export interface AIProblemResponse {
 
 /**
  * AI Solution Response (structured for storage)
+ * Matches Solution interface from problem.interface.ts
  */
 export interface AISolutionResponse {
+	id: string;
 	approach: string;
 	language: string;
 	code: string;
 	complexity: {
-		time: string;
-		space: string;
-		explanation: string;
+		time: {
+			notation: string;
+			best: string;
+			average: string;
+			worst: string;
+			explanation: string;
+		};
+		space: {
+			notation: string;
+			best: string;
+			average: string;
+			worst: string;
+			explanation: string;
+		};
+		tradeoffs?: string;
 	};
 	explanation: string;
 	stepByStep: Array<{
-		step: number;
+		stepNumber: number;
 		title: string;
 		description: string;
 		codeSnippet?: string;
+		visualization?: string;
+		keyInsight?: string;
 	}>;
-	testCases: Array<{
-		input: string;
-		output: string;
-		explanation?: string;
-	}>;
+	timeToSolve?: number;
+	difficulty: "easy" | "medium" | "hard";
 }
 
 /**
@@ -82,6 +102,7 @@ export interface AIExplanationStep {
 	title: string;
 	description: string;
 	codeSnippet?: string;
+	visualization?: string;
 }
 
 /**
@@ -104,5 +125,6 @@ export interface AIFormatResponse {
 	data?: AIProblemResponse;
 	error?: string;
 	processingTime: number;
+	tokensUsed?: number; // Number of tokens used for the request
 }
 
