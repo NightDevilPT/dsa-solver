@@ -1,8 +1,6 @@
 // Main AI Service
 // Unified interface for all AI operations
 
-import { OpenAIService } from "./providers/openai.service";
-import type { Problem } from "@/interface/provider.interface";
 import type {
 	FormattedProblem,
 	ProblemSolutions,
@@ -13,6 +11,8 @@ import type {
 	AIFormatOptions,
 	AIFormatResponse,
 } from "@/interface/ai.interface";
+import { OpenAIService } from "./providers/openai.service";
+import type { Problem } from "@/interface/provider.interface";
 
 /**
  * Main AI Service

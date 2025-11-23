@@ -1,11 +1,6 @@
 // OpenAI-Compatible Service Implementation
 // Handles AI operations using OpenAI-compatible APIs (OpenAI, Groq, OpenRouter, etc.)
 
-import OpenAI from "openai";
-import { PROBLEM_FORMAT_PROMPT } from "../base/prompts/problem-format.prompt";
-import { AIProblemResponseSchema } from "../base/schemas/ai-response.schema";
-import { BaseAIService } from "../base/base-ai.service";
-import type { Problem } from "@/interface/provider.interface";
 import type {
 	FormattedProblem,
 	ProblemSolutions,
@@ -16,6 +11,11 @@ import type {
 	AIFormatOptions,
 	AIFormatResponse,
 } from "@/interface/ai.interface";
+import OpenAI from "openai";
+import { BaseAIService } from "../base/base-ai.service";
+import type { Problem } from "@/interface/provider.interface";
+import { AIProblemResponseSchema } from "../base/schemas/ai-response.schema";
+import { PROBLEM_FORMAT_PROMPT } from "../base/prompts/problem-format.prompt";
 
 export class OpenAIService extends BaseAIService {
 	private client: OpenAI | null = null;
@@ -59,12 +59,15 @@ export class OpenAIService extends BaseAIService {
 		} else if (groqApiKey) {
 			// Groq configuration
 			apiKey = groqApiKey;
-			baseURL = process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1";
+			baseURL =
+				process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1";
 			defaultModel = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
 		} else if (openRouterApiKey) {
 			// OpenRouter configuration
 			apiKey = openRouterApiKey;
-			baseURL = process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1";
+			baseURL =
+				process.env.OPENROUTER_BASE_URL ||
+				"https://openrouter.ai/api/v1";
 			defaultModel = process.env.OPENROUTER_MODEL || "gemini-2.0-flash";
 			defaultHeaders = {
 				"HTTP-Referer": process.env.OPENROUTER_HTTP_REFERER || "",
@@ -142,23 +145,24 @@ export class OpenAIService extends BaseAIService {
 			);
 
 			// Transform null to undefined for optional fields to match interface
-			const transformedData: import("@/interface/ai.interface").AIProblemResponse = {
-				...validated,
-				problem: {
-					...validated.problem,
-					examples: validated.problem.examples.map((example) => ({
-						...example,
-						explanation: example.explanation ?? undefined,
-						imageUrl: example.imageUrl ?? undefined,
-					})),
-				},
-				metadata: {
-					...validated.metadata,
-					formattedAt: new Date(validated.metadata.formattedAt),
-					processingTime,
-					aiModel: config.model,
-				},
-			};
+			const transformedData: import("@/interface/ai.interface").AIProblemResponse =
+				{
+					...validated,
+					problem: {
+						...validated.problem,
+						examples: validated.problem.examples.map((example) => ({
+							...example,
+							explanation: example.explanation ?? undefined,
+							imageUrl: example.imageUrl ?? undefined,
+						})),
+					},
+					metadata: {
+						...validated.metadata,
+						formattedAt: new Date(validated.metadata.formattedAt),
+						processingTime,
+						aiModel: config.model,
+					},
+				};
 
 			return {
 				success: true,
@@ -207,4 +211,3 @@ export class OpenAIService extends BaseAIService {
 		throw new Error("Not implemented yet");
 	}
 }
-

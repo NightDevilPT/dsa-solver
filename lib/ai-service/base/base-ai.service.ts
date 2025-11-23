@@ -1,8 +1,6 @@
 // Base AI Service
 // Abstract base class for all AI provider implementations
 
-import { z } from "zod";
-import type { Problem } from "@/interface/provider.interface";
 import type {
 	FormattedProblem,
 	ProblemSolutions,
@@ -13,6 +11,8 @@ import type {
 	AIFormatOptions,
 	AIFormatResponse,
 } from "@/interface/ai.interface";
+import { z } from "zod";
+import type { Problem } from "@/interface/provider.interface";
 
 /**
  * Abstract base class for AI services
