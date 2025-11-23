@@ -15,22 +15,22 @@ This document outlines the complete development phases for the DSA Solver projec
 - [x] Set up Prisma schema location
 
 ### 1.2 Database Schema Creation
-- [x] Create `User` model
-- [x] Create `AuthToken` model
-- [x] Create `ProviderConfig` model
-- [x] Create `EncryptedCredentials` model
-- [x] Create `NotificationConfig` model
-- [x] Create `DailyQuestion` model
-- [x] Create `DailyQuestionLog` model
-- [x] Create `ScheduledTask` model
-- [x] Add all enums (TokenType, TokenPurpose, ProviderType, DeliveryStatus, ScheduleType, TaskStatus, ProblemSelection)
+- [x] Create `User` model (exists in `prisma/user.prisma`)
+- [x] Create `AuthToken` model (exists in `prisma/authToken.prisma`)
+- [x] Create `ProviderConfig` model (exists in `prisma/providerConfig.prisma`)
+- [x] Create `EncryptedCredentials` model (exists in `prisma/encryptedCredentials.prisma`)
+- [x] Create `NotificationConfig` model (exists in `prisma/notificationConfig.prisma`)
+- [x] Create `DailyQuestion` model (exists in `prisma/dailyQuestion.prisma`)
+- [x] Create `DailyQuestionLog` model (exists in `prisma/dailyQuestionLog.prisma`)
+- [x] Create `ScheduledTask` model (exists in `prisma/scheduledTask.prisma`)
+- [x] Add all enums (TokenType, TokenPurpose, ProviderType, DeliveryStatus, ScheduleType, TaskStatus, ProblemSelection) - in `schema.prisma`
 - [x] Add indexes and unique constraints
-- [x] Organize models in separate files: `prisma/models/<modelName>/<modelName>.prisma`
+- [ ] **IMPORTANT:** Combine all models into `schema.prisma` (Prisma requires all models in one file)
 
 ### 1.3 Database Migration
 - [x] Generate Prisma Client: `npm run prisma:generate`
-- [ ] Create initial migration: `npm run prisma:migrate`
-- [ ] Verify migration files created
+- [x] Create initial migration: `npm run prisma:migrate`
+- [x] Verify migration files created
 - [ ] Test database connection
 
 ### 1.4 Prisma Client Setup
@@ -45,19 +45,20 @@ This document outlines the complete development phases for the DSA Solver projec
 ## Phase 2: Authentication System
 
 ### 2.1 Core Authentication Types & Interfaces
-- [ ] Create `interface/api.interface.ts` with `ApiResponse<T>` interface
+- [x] Create `interface/api.interface.ts` with `ApiResponse<T>` interface
 - [ ] Create `interface/provider.interface.ts` with `Credentials`, `Problem` interfaces
-- [ ] Create `interface/auth.interface.ts` for auth-related types
+- [x] Create `interface/auth.interface.ts` for auth-related types
 - [x] Create `interface/theme.interface.ts` - Theme-related types
 - [x] Create `interface/navigation.interface.ts` - Navigation types
 
-### 2.2 Authentication Service
-- [ ] Create `lib/auth-service/auth.service.ts`
-- [ ] Implement `requestLogin(email)` - Generate OTP
-- [ ] Implement `verifyOTP(email, otpCode)` - Verify OTP and generate tokens
-- [ ] Implement `generateTokens(userId)` - Generate accessToken and refreshToken
-- [ ] Implement `refreshAccessToken(refreshToken)` - Refresh tokens
-- [ ] Implement `logout(userId, refreshToken)` - Revoke tokens
+### 2.2 JWT Service
+- [x] Create `lib/jwt-service/jwt.service.ts`
+- [x] Implement `generateAccessToken(userId)` - Generate JWT accessToken (10 min expiry)
+- [x] Implement `generateRefreshToken(userId)` - Generate JWT refreshToken (12 min expiry)
+- [x] Implement `verifyToken(token)` - Verify JWT token and extract payload
+- [x] Implement `decodeToken(token)` - Decode JWT token without verification
+- [x] Note: Token refresh logic is handled in `auth.middleware.ts` (automatic)
+- [x] Add OTP functions to `lib/utils.ts` - OTP generation (`generateOTP`), hashing (`hashOTP`), verification (`verifyOTP`), and expiry check (`isOTPExpired`)
 
 ### 2.3 Email Service
 - [ ] Create `lib/email-service/auth-email.service.ts`
@@ -66,19 +67,22 @@ This document outlines the complete development phases for the DSA Solver projec
 - [ ] Configure email provider (Resend/SendGrid)
 
 ### 2.4 Middleware Implementation
-- [ ] Create `lib/middleware/auth.middleware.ts`
-- [ ] Implement token validation logic
-- [ ] Implement automatic token refresh
-- [ ] Create `lib/middleware/response-format.middleware.ts`
-- [ ] Implement response formatting
-- [ ] Create `lib/middleware/combined.middleware.ts` (protectedRoute)
+- [x] Create `lib/middleware/auth.middleware.ts`
+- [x] Implement token validation logic
+- [x] Implement automatic token refresh
+- [x] Create `lib/middleware/response-format.middleware.ts`
+- [x] Implement response formatting
+- [x] Create `lib/middleware/protected-route.middleware.ts` (protectedRoute)
+- [x] Create `lib/middleware/public-route.middleware.ts` (publicRoute)
+- [x] Set up API structure: `/api/public/*` and `/api/protected/*`
 
 ### 2.5 Authentication API Routes
-- [ ] Create `app/api/auth/login/route.ts` - Request login (send OTP)
-- [ ] Create `app/api/auth/verify-otp/route.ts` - Verify OTP and set cookies
-- [ ] Create `app/api/auth/logout/route.ts` - Logout and revoke tokens
-- [ ] Create `app/api/auth/refresh/route.ts` - Refresh access token
-- [ ] Create `app/api/auth/session/route.ts` - Get current session
+- [x] Create `app/api/public/auth/login/route.ts` - Request login (generate OTP, create user if doesn't exist)
+- [x] Create `app/api/public/auth/verify-otp/route.ts` - Verify OTP, generate tokens using JWT service, set cookies
+- [x] Create `app/api/protected/auth/logout/route.ts` - Logout and revoke refreshToken
+- [x] Create `app/api/protected/auth/session/route.ts` - Get current session (user data)
+- [x] Create example public route: `app/api/public/health/route.ts`
+- [x] Create example protected route: `app/api/protected/user/profile/route.ts`
 
 ### 2.6 Frontend Authentication Pages
 - [x] Create `app/[lang]/auth/login/page.tsx` - Login page (placeholder)
@@ -438,5 +442,43 @@ Before starting development:
 ---
 
 **Last Updated:** December 2024
-**Status:** Phase 1 (Infrastructure) - In Progress
+**Status:** Phase 1 (Database) - Completed | Phase 2 (Authentication) - In Progress
+
+## Recent Updates
+
+### Phase 1 Status ⚠️
+- ✅ All database models created (in separate `.prisma` files)
+- ✅ All enums defined in `schema.prisma` (TokenType, TokenPurpose, ProviderType, DeliveryStatus, ScheduleType, TaskStatus, ProblemSelection)
+- ⚠️ **Models need to be combined into `schema.prisma`** (Prisma requires all models in one file)
+- ✅ Initial migration created
+- ⚠️ Prisma client needs regeneration after models are added to `schema.prisma`
+
+### Phase 2 In Progress 🚧
+- API response interface created (`interface/api.interface.ts`)
+- Middleware system implemented:
+  - `lib/middleware/auth.middleware.ts` - Token validation and auto-refresh
+  - `lib/middleware/response-format.middleware.ts` - Standard API response format
+  - `lib/middleware/protected-route.middleware.ts` - Protected routes (auth + format)
+  - `lib/middleware/public-route.middleware.ts` - Public routes (format only)
+- API structure set up:
+  - `/api/public/*` - Public routes with response format
+  - `/api/protected/*` - Protected routes with auth + response format
+- Example routes created:
+  - `app/api/public/health/route.ts` - Health check example
+  - `app/api/protected/user/profile/route.ts` - User profile example
+
+### Next Steps
+1. **Install required packages:**
+   ```bash
+   npm install jsonwebtoken bcrypt
+   npm install -D @types/jsonwebtoken @types/bcrypt
+   ```
+2. Implement JWT service (`lib/jwt-service/jwt.service.ts`) for token generation and verification
+3. Implement OTP service for generating and verifying OTP codes
+4. Implement email service for OTP delivery (`lib/email-service/auth-email.service.ts`)
+5. Create authentication API routes:
+   - `app/api/public/auth/login/route.ts` - Request login (generate OTP, create user if doesn't exist)
+   - `app/api/public/auth/verify-otp/route.ts` - Verify OTP, generate tokens using JWT service, set cookies
+   - `app/api/protected/auth/logout/route.ts` - Logout and revoke refreshToken
+   - `app/api/protected/auth/session/route.ts` - Get current session (user data)
 
