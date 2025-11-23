@@ -18,3 +18,4 @@ const healthCheck = async (request: NextRequest) => {
 export const GET = publicRoute(healthCheck);
 
 
+

@@ -4,19 +4,18 @@
 // Run: npm run prisma:combine to update schema.prisma
 
 model ProviderConfig {
-  id              String   @id @default(cuid())
-  userId          String
-  provider        ProviderType
-  credentials     EncryptedCredentials?
+  id                 String                @id @default(cuid())
+  userId             String
+  provider           ProviderType
+  credentials        EncryptedCredentials?
   notificationConfig NotificationConfig?
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  scheduledTasks  ScheduledTask[]
+  isActive           Boolean               @default(true)
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scheduledTasks    ScheduledTask[]
   dailyQuestionLogs DailyQuestionLog[]
-  
+
   @@unique([userId, provider])
 }
-

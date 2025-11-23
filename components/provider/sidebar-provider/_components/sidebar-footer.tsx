@@ -15,30 +15,49 @@ import { useRouter } from "next/navigation";
 import { Settings, User } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useThemeContext } from "@/components/context/theme-context";
-
-// Mock user data - replace with actual user context/auth
-const MOCK_USER = {
-	name: "John Doe",
-	email: "john.doe@example.com",
-	avatar: null, // You can add avatar URL here
-};
+import { useUserSession } from "@/components/context/user-session-context";
 
 // Avatar component
 const Avatar = React.memo(function Avatar({
 	name,
 	email,
+	avatar,
 	size = "default",
 }: {
-	name: string;
+	name: string | null;
 	email: string;
+	avatar?: string | null;
 	size?: "default" | "sm" | "lg";
 }) {
-	const initials = name
-		.split(" ")
-		.map((n) => n[0])
-		.join("")
-		.toUpperCase()
-		.slice(0, 2);
+	// Use avatar image if available
+	if (avatar) {
+		return (
+			<img
+				src={avatar}
+				alt={name || email}
+				className={cn(
+					"rounded-full shrink-0 object-cover",
+					size === "sm" && "h-8 w-8",
+					size === "default" && "h-10 w-10",
+					size === "lg" && "h-12 w-12"
+				)}
+			/>
+		);
+	}
+
+	// Generate initials from name or email's first letter
+	let initials: string;
+	if (name) {
+		initials = name
+			.split(" ")
+			.map((n) => n[0])
+			.join("")
+			.toUpperCase()
+			.slice(0, 2);
+	} else {
+		// Use email's first letter if no name available
+		initials = email.charAt(0).toUpperCase();
+	}
 
 	const sizeClasses = {
 		sm: "h-8 w-8 text-xs",
@@ -63,10 +82,20 @@ Avatar.displayName = "Avatar";
 export const SidebarFooter = React.memo(function SidebarFooter() {
 	const { state } = useSidebar();
 	const { locale } = useThemeContext();
+	const { user, isLoading } = useUserSession();
 	const router = useRouter();
 	const isCollapsed = state === "collapsed";
 
-	const user = MOCK_USER;
+	// Generate display name from user data
+	const displayName = React.useMemo(() => {
+		if (!user) return null;
+		if (user.firstName && user.lastName) {
+			return `${user.firstName} ${user.lastName}`;
+		}
+		if (user.firstName) return user.firstName;
+		if (user.username) return user.username;
+		return user.email;
+	}, [user]);
 
 	const buildPath = React.useCallback(
 		(path: string) => {
@@ -82,6 +111,34 @@ export const SidebarFooter = React.memo(function SidebarFooter() {
 		[router, buildPath]
 	);
 
+	// Show loading state or empty state if no user
+	// IMPORTANT: All hooks must be called before any conditional returns
+	if (isLoading || !user) {
+		return (
+			<div
+				className={cn(
+					"flex items-center w-full transition-all duration-300 ease-in-out rounded-lg",
+					isCollapsed
+						? "justify-center px-2 py-2"
+						: "justify-start gap-3 px-3 py-2"
+				)}
+			>
+				<div
+					className={cn(
+						"flex items-center justify-center rounded-full bg-muted animate-pulse",
+						isCollapsed ? "h-8 w-8" : "h-10 w-10"
+					)}
+				/>
+				{!isCollapsed && (
+					<div className="flex flex-col gap-1 flex-1">
+						<div className="h-4 w-24 bg-muted rounded animate-pulse" />
+						<div className="h-3 w-32 bg-muted rounded animate-pulse" />
+					</div>
+				)}
+			</div>
+		);
+	}
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -95,18 +152,19 @@ export const SidebarFooter = React.memo(function SidebarFooter() {
 					)}
 				>
 					<Avatar
-						name={user.name}
+						name={displayName}
 						email={user.email}
+						avatar={user.avatar}
 						size={isCollapsed ? "sm" : "default"}
 					/>
 
 					{!isCollapsed && (
-						<div className="flex items-center justify-between min-w-0 flex-1">
-							<div className="flex flex-col items-start gap-0.5 min-w-0 flex-1 overflow-hidden">
-								<span className="text-sm font-semibold text-sidebar-foreground truncate">
-									{user.name}
+						<div className="flex w-full overflow-hidden items-center justify-between min-w-0 flex-1">
+							<div className="flex flex-col items-start justify-start gap-0.5 min-w-0 flex-1 overflow-hidden text-left">
+								<span className="w-full text-sm font-semibold text-sidebar-foreground truncate">
+									{displayName}
 								</span>
-								<span className="text-xs text-sidebar-foreground/70 truncate">
+								<span className="w-full text-xs text-sidebar-foreground/70 truncate">
 									{user.email}
 								</span>
 							</div>
@@ -124,10 +182,15 @@ export const SidebarFooter = React.memo(function SidebarFooter() {
 				{/* User Details Section */}
 				<DropdownMenuLabel className="p-0">
 					<div className="flex items-center gap-3 px-2 py-3">
-						<Avatar name={user.name} email={user.email} size="lg" />
+						<Avatar
+							name={displayName}
+							email={user.email}
+							avatar={user.avatar}
+							size="lg"
+						/>
 						<div className="flex flex-col gap-0.5 min-w-0 flex-1">
 							<span className="text-sm font-semibold text-foreground truncate">
-								{user.name}
+								{displayName}
 							</span>
 							<span className="text-xs text-muted-foreground truncate">
 								{user.email}

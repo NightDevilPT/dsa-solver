@@ -3,20 +3,23 @@
 // Run: npm run prisma:combine to update schema.prisma
 
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  name          String?
-  emailVerified Boolean  @default(false)
+  id        String  @id @default(cuid())
+  email     String  @unique
+  username  String?
+  firstName String?
+  lastName  String?
+  avatar    String?
+
+  emailVerified   Boolean   @default(false)
   emailVerifiedAt DateTime?
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  providerConfigs ProviderConfig[]
-  scheduledTasks  ScheduledTask[]
-  authTokens      AuthToken[]
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  providerConfigs   ProviderConfig[]
+  scheduledTasks    ScheduledTask[]
+  authTokens        AuthToken[]
   dailyQuestionLogs DailyQuestionLog[]
-  
+
   @@index([email])
 }
-

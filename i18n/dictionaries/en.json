@@ -158,5 +158,31 @@
 			"label": "Select Language",
 			"descriptionText": "Changing the language will update the interface text throughout the application."
 		}
+	},
+	"auth": {
+		"login": {
+			"title": "Login",
+			"description": "Enter your email address to receive a one-time password",
+			"emailLabel": "Email Address",
+			"emailPlaceholder": "you@example.com",
+			"emailDescription": "We'll send a 6-digit code to this email address",
+			"submit": "Send OTP",
+			"sending": "Sending...",
+			"otpSent": "OTP sent to your email",
+			"otpResent": "OTP resent successfully",
+			"error": "Failed to send OTP. Please try again."
+		},
+		"verifyOtp": {
+			"title": "Verify OTP",
+			"description": "Enter the 6-digit code sent to {email}",
+			"otpLabel": "One-Time Password",
+			"otpDescription": "Check your email for the 6-digit verification code",
+			"submit": "Verify & Login",
+			"verifying": "Verifying...",
+			"success": "Login successful! Redirecting...",
+			"error": "Invalid OTP. Please try again.",
+			"back": "Back to Email",
+			"resend": "Resend OTP"
+		}
 	}
 }

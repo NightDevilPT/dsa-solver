@@ -14,6 +14,7 @@ import { navItems } from "./sidebar-provider/route";
 import SidebarLayout from "./sidebar-provider/sidebar";
 import { ThemeProvider } from "./theme-provider/theme-provider";
 import { ScrollArea } from "../ui/scroll-area";
+import { UserSessionProvider } from "./user-session-provider/user-session-provider";
 
 type RootProviderProps = {
 	children: React.ReactNode;
@@ -53,11 +54,13 @@ const RootProvider = ({
 			defaultSidebarVariant={defaultSidebarVariant}
 			defaultSidebarSide={defaultSidebarSide}
 		>
-			{isHomePage ? (
-				<ScrollArea className="w-full h-full overflow-auto">{children}</ScrollArea>
-			) : (
-				<SidebarLayout navItems={navItems}>{children}</SidebarLayout>
-			)}
+			<UserSessionProvider>
+				{isHomePage ? (
+					<ScrollArea className="w-full h-full overflow-auto">{children}</ScrollArea>
+				) : (
+					<SidebarLayout navItems={navItems}>{children}</SidebarLayout>
+				)}
+			</UserSessionProvider>
 		</ThemeProvider>
 	);
 };

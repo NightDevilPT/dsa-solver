@@ -11,7 +11,10 @@ const getProfile = async (request: NextRequest, userId: string) => {
     select: {
       id: true,
       email: true,
-      name: true,
+      username: true,
+      firstName: true,
+      lastName: true,
+      avatar: true,
       emailVerified: true,
       emailVerifiedAt: true,
       isActive: true,
@@ -34,5 +37,6 @@ const getProfile = async (request: NextRequest, userId: string) => {
 };
 
 export const GET = protectedRoute(getProfile);
+
 
 

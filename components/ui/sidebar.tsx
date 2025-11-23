@@ -601,14 +601,18 @@ function SidebarMenuButton({
     }
   }
 
+  // Extract key from tooltip props if present
+  const { key, ...tooltipProps } = tooltip as React.ComponentProps<typeof TooltipContent> & { key?: React.Key }
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>{button}</TooltipTrigger>
       <TooltipContent
+        key={key}
         side="right"
         align="center"
         hidden={state !== "collapsed" || isMobile}
-        {...tooltip}
+        {...tooltipProps}
       />
     </Tooltip>
   )

@@ -17,9 +17,15 @@ import { useThemeContext } from "@/components/context/theme-context";
 export const ThemeToggleCompact = React.memo(function ThemeToggleCompact() {
 	const { themeMode, setThemeMode, resolvedThemeMode } = useThemeContext();
 	const { t } = useTranslation();
+	const [mounted, setMounted] = React.useState(false);
+
+	// Prevent hydration mismatch by only rendering theme-dependent content after mount
+	React.useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	const safeThemeMode = themeMode || "system";
-	const isDark = resolvedThemeMode === "dark";
+	const isDark = mounted && resolvedThemeMode === "dark";
 
 	const handleThemeChange = React.useCallback(
 		(mode: ThemeMode) => {
@@ -34,7 +40,7 @@ export const ThemeToggleCompact = React.memo(function ThemeToggleCompact() {
 				<Button
 					variant="ghost"
 					size="icon"
-					className="h-9 w-9 rounded-lg border border-border/50 hover:bg-accent hover:border-primary/50 transition-all duration-200"
+					className="h-9 w-9 rounded-lg border border-border/50 hover:bg-accent hover:border-primary/50 transition-all duration-200 relative"
 				>
 					<Sun
 						className={cn(

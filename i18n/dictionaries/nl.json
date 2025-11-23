@@ -158,5 +158,31 @@
 			"label": "Selecteer taal",
 			"descriptionText": "Het wijzigen van de taal werkt de interfacetekst in de hele applicatie bij."
 		}
+	},
+	"auth": {
+		"login": {
+			"title": "Inloggen",
+			"description": "Voer uw e-mailadres in om een eenmalig wachtwoord te ontvangen",
+			"emailLabel": "E-mailadres",
+			"emailPlaceholder": "u@voorbeeld.nl",
+			"emailDescription": "We sturen een 6-cijferige code naar dit e-mailadres",
+			"submit": "OTP verzenden",
+			"sending": "Verzenden...",
+			"otpSent": "OTP verzonden naar uw e-mail",
+			"otpResent": "OTP opnieuw verzonden",
+			"error": "OTP verzenden mislukt. Probeer het opnieuw."
+		},
+		"verifyOtp": {
+			"title": "OTP verifiëren",
+			"description": "Voer de 6-cijferige code in die naar {email} is verzonden",
+			"otpLabel": "Eenmalig wachtwoord",
+			"otpDescription": "Controleer uw e-mail voor de 6-cijferige verificatiecode",
+			"submit": "Verifiëren & Inloggen",
+			"verifying": "Verifiëren...",
+			"success": "Inloggen succesvol! Doorverwijzen...",
+			"error": "Ongeldige OTP. Probeer het opnieuw.",
+			"back": "Terug naar E-mail",
+			"resend": "OTP opnieuw verzenden"
+		}
 	}
 }

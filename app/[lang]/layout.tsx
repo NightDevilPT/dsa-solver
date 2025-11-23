@@ -10,6 +10,7 @@ import { Locale, locales } from "@/i18n/dictionaries";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ColorScheme } from "@/interface/theme.interface";
 import type { ThemeMode } from "@/interface/theme.interface";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -61,6 +62,7 @@ export default async function RootLayout({
 				>
 					{children}
 				</RootProvider>
+				<Toaster position="top-right" richColors />
 			</body>
 		</html>
 	);

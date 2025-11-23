@@ -129,7 +129,10 @@ const verifyOTPHandler = async (request: NextRequest) => {
 				user: {
 					id: user.id,
 					email: user.email,
-					name: user.name,
+					username: user.username,
+					firstName: user.firstName,
+					lastName: user.lastName,
+					avatar: user.avatar,
 					emailVerified: true,
 				},
 			},

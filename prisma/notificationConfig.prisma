@@ -3,18 +3,17 @@
 // Run: npm run prisma:combine to update schema.prisma
 
 model NotificationConfig {
-  id              String   @id @default(cuid())
-  providerConfigId String  @unique
-  includeExplanation Boolean @default(false)
-  includeBruteForce Boolean  @default(false)
-  includeOptimized  Boolean  @default(false)
-  includeHints      Boolean  @default(false)
-  autoSubmit        Boolean  @default(false)
-  emailTemplate   String?
-  preferredLanguage String @default("en")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  id                 String   @id @default(cuid())
+  providerConfigId   String   @unique
+  includeExplanation Boolean  @default(false)
+  includeBruteForce  Boolean  @default(false)
+  includeOptimized   Boolean  @default(false)
+  includeHints       Boolean  @default(false)
+  autoSubmit         Boolean  @default(false)
+  emailTemplate      String?
+  preferredLanguage  String   @default("en")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
   providerConfig ProviderConfig @relation(fields: [providerConfigId], references: [id], onDelete: Cascade)
 }
-

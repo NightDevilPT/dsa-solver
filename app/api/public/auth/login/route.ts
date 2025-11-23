@@ -69,7 +69,7 @@ const loginHandler = async (request: NextRequest) => {
 			const emailOptions = buildOTPEmail({
 				email: normalizedEmail,
 				otpCode,
-				userName: user.name || undefined,
+				userName: user?.username || undefined,
 				isNewUser,
 			});
 			
