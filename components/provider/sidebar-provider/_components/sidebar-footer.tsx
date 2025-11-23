@@ -16,7 +16,6 @@ export const SidebarFooter = React.memo(function SidebarFooter() {
 	const { state } = useSidebar();
 	const { locale } = useThemeContext();
 	const { user, isLoading } = useUserSession();
-	const router = useRouter();
 	const isCollapsed = state === "collapsed";
 
 	// Generate display name using the shared helper function
@@ -30,13 +29,6 @@ export const SidebarFooter = React.memo(function SidebarFooter() {
 			return `/${locale}${path}`;
 		},
 		[locale]
-	);
-
-	const handleNavigation = React.useCallback(
-		(path: string) => {
-			router.push(buildPath(path));
-		},
-		[router, buildPath]
 	);
 
 	// Show loading state or empty state if no user
@@ -100,32 +92,11 @@ export const SidebarFooter = React.memo(function SidebarFooter() {
 		</button>
 	);
 
-	// Custom menu items for sidebar (Profile instead of Dashboard)
-	const customMenuItems = (
-		<>
-			<DropdownMenuItem
-				onClick={() => handleNavigation("/profile")}
-				className="cursor-pointer"
-			>
-				<User className="h-4 w-4" />
-				<Label>Profile</Label>
-			</DropdownMenuItem>
-			<DropdownMenuItem
-				onClick={() => handleNavigation("/setting")}
-				className="cursor-pointer"
-			>
-				<Settings className="h-4 w-4" />
-				<Label>Settings</Label>
-			</DropdownMenuItem>
-		</>
-	);
-
 	return (
 		<UserMenu
 			trigger={sidebarTrigger}
 			displayNameStrategy="username-first"
-			showLogout={false}
-			customMenuItems={customMenuItems}
+			showLogout={true}
 			align="end"
 			side="right"
 			sideOffset={8}

@@ -5,12 +5,14 @@ import type {
 	SidebarSide,
 } from "@/interface/theme.interface";
 import type { Metadata } from "next";
-import RootProvider from "@/components/provider";
+import { Toaster } from "@/components/ui/sonner";
 import { Locale, locales } from "@/i18n/dictionaries";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ColorScheme } from "@/interface/theme.interface";
 import type { ThemeMode } from "@/interface/theme.interface";
-import { Toaster } from "@/components/ui/sonner";
+import { AppContent } from "@/components/provider/app-content";
+import { ThemeProvider } from "@/components/provider/theme-provider/theme-provider";
+import { UserSessionProvider } from "@/components/provider/user-session-provider/user-session-provider";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -52,7 +54,7 @@ export default async function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased w-full h-screen overflow-hidden`}
 			>
-				<RootProvider
+				<ThemeProvider
 					defaultThemeMode={defaultThemeMode}
 					defaultColorScheme={ColorScheme.Default}
 					defaultLocale={lang}
@@ -60,9 +62,11 @@ export default async function RootLayout({
 					defaultSidebarVariant={defaultSidebarVariant}
 					defaultSidebarSide={defaultSidebarSide}
 				>
-					{children}
-				</RootProvider>
-				<Toaster position="top-right" richColors />
+					<UserSessionProvider>
+						<AppContent>{children}</AppContent>
+					</UserSessionProvider>
+				</ThemeProvider>
+				<Toaster position="bottom-right" richColors />
 			</body>
 		</html>
 	);

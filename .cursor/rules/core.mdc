@@ -283,6 +283,40 @@ export function MyComponent() {
 -   Log errors appropriately for debugging.
 -   Handle loading and error states in UI components.
 
+## 21. Post-Development Error Checking
+
+-   **ALWAYS check for TypeScript/compilation errors after completing any development task.**
+-   After implementing a feature or making changes:
+    1. Check for TypeScript errors in the IDE/linter
+    2. Verify Prisma field names match the actual schema (check `prisma/schema.prisma` or model files)
+    3. Ensure all imports are correct and files exist
+    4. Test that the code compiles without errors
+    5. Fix any errors before marking the task as complete
+-   Common errors to watch for:
+    -   Prisma field name mismatches (e.g., `providerType` vs `provider`, `date` vs `problemDate`)
+    -   Missing or incorrect type definitions
+    -   Import path errors
+    -   Missing required properties in interfaces
+-   **Never leave errors unresolved** - always fix them immediately after development.
+
+## 22. HTML Element Usage
+
+-   **NEVER use `<p>` or `<span>` tags for text content.**
+-   **ALWAYS use Shadcn `Label` component instead of `<p>` or `<span>` tags.**
+-   Use `Label` component from `@/components/ui/label` for all text content.
+-   Example:
+    ```typescript
+    // ❌ WRONG - Don't use p or span
+    <p className="text-muted-foreground">Some text</p>
+    <span className="text-sm">Some text</span>
+    
+    // ✅ CORRECT - Use Label component
+    <Label className="text-muted-foreground">Some text</Label>
+    <Label className="text-sm">Some text</Label>
+    ```
+-   The `Label` component provides consistent styling and accessibility features.
+-   For block-level text, add `block` class: `<Label className="block">Text</Label>`
+
 ---
 
 ✅ **Reference Layout**

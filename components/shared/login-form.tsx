@@ -20,6 +20,7 @@ import {
 import {
 	InputOTP,
 	InputOTPGroup,
+	InputOTPSeparator,
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { loginSchema, verifyOTPSchema } from "@/lib/validation/otp.schema";
@@ -62,7 +63,10 @@ export function LoginForm({ onSuccess, className }: LoginFormProps) {
 	const onEmailSubmit = async (data: LoginFormData) => {
 		setIsLoading(true);
 		try {
-			const result = await apiService.post("/api/public/auth/login", data);
+			const result = await apiService.post(
+				"/api/public/auth/login",
+				data
+			);
 
 			if (!result.success) {
 				toast.error(result.message || t("auth.login.error"));
@@ -141,7 +145,10 @@ export function LoginForm({ onSuccess, className }: LoginFormProps) {
 									{t("auth.verifyOtp.title")}
 								</h2>
 								<Label className="text-muted-foreground text-sm font-normal mt-1">
-									{t("auth.verifyOtp.description").replace("{email}", email)}
+									{t("auth.verifyOtp.description").replace(
+										"{email}",
+										email
+									)}
 								</Label>
 							</div>
 
@@ -150,11 +157,15 @@ export function LoginForm({ onSuccess, className }: LoginFormProps) {
 								name="email"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("auth.login.emailLabel")}</FormLabel>
+										<FormLabel>
+											{t("auth.login.emailLabel")}
+										</FormLabel>
 										<FormControl>
 											<Input
 												type="email"
-												placeholder={t("auth.login.emailPlaceholder")}
+												placeholder={t(
+													"auth.login.emailPlaceholder"
+												)}
 												disabled={true}
 												{...field}
 											/>
@@ -172,7 +183,9 @@ export function LoginForm({ onSuccess, className }: LoginFormProps) {
 								name="otpCode"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("auth.verifyOtp.otpLabel")}</FormLabel>
+										<FormLabel>
+											{t("auth.verifyOtp.otpLabel")}
+										</FormLabel>
 										<FormControl>
 											<InputOTP
 												maxLength={6}
@@ -183,8 +196,14 @@ export function LoginForm({ onSuccess, className }: LoginFormProps) {
 												<InputOTPGroup>
 													<InputOTPSlot index={0} />
 													<InputOTPSlot index={1} />
+												</InputOTPGroup>
+												<InputOTPSeparator />
+												<InputOTPGroup>
 													<InputOTPSlot index={2} />
 													<InputOTPSlot index={3} />
+												</InputOTPGroup>
+												<InputOTPSeparator />
+												<InputOTPGroup>
 													<InputOTPSlot index={4} />
 													<InputOTPSlot index={5} />
 												</InputOTPGroup>
@@ -248,11 +267,15 @@ export function LoginForm({ onSuccess, className }: LoginFormProps) {
 							name="email"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t("auth.login.emailLabel")}</FormLabel>
+									<FormLabel>
+										{t("auth.login.emailLabel")}
+									</FormLabel>
 									<FormControl>
 										<Input
 											type="email"
-											placeholder={t("auth.login.emailPlaceholder")}
+											placeholder={t(
+												"auth.login.emailPlaceholder"
+											)}
 											disabled={isLoading}
 											{...field}
 										/>
@@ -265,7 +288,11 @@ export function LoginForm({ onSuccess, className }: LoginFormProps) {
 							)}
 						/>
 
-						<Button type="submit" disabled={isLoading} className="w-full">
+						<Button
+							type="submit"
+							disabled={isLoading}
+							className="w-full"
+						>
 							{isLoading
 								? t("auth.login.sending")
 								: t("auth.login.submit")}
@@ -276,4 +303,3 @@ export function LoginForm({ onSuccess, className }: LoginFormProps) {
 		</div>
 	);
 }
-
