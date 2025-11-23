@@ -1,0 +1,56 @@
+// Problem Model Schema
+// This is the source of truth for the Problem model
+// Uses: ProviderType and QuestionType enums (defined in schema.prisma)
+// This model stores all types of problems/questions from various providers
+// (Problem of the Day, Weekly Challenge, Contest Problems, Practice Problems, etc.)
+// Run: npm run prisma:combine to update schema.prisma
+//
+// JSON Fields Structure:
+// - description: ProblemDescription (raw, formatted, sections, metadata)
+// - examples: ProblemExample[] (exampleNumber, input, output, explanation, imageUrl)
+// - constraints: ProblemConstraint[] (constraint)
+// - solutions: ProblemSolutions (bruteForce, optimized, alternative, bestPractice)
+// - explanations: ProblemExplanations (overview, approach, stepByStep, keyInsights, commonMistakes, relatedProblems)
+// - hints: ProblemHints (progressive, approach, dataStructure, algorithm)
+
+model Problem {
+  id          String       @id @default(cuid())
+  provider    ProviderType
+  questionType QuestionType @default(PROBLEM_OF_THE_DAY)
+  problemId   String
+  problemSlug String
+  problemUrl  String
+  title       String
+  difficulty  String
+  topics      String[]
+  
+  // AI-Formatted Content (stored as JSON)
+  description Json?        // ProblemDescription structure
+  examples    Json?        // ProblemExample[] array
+  constraints Json?        // ProblemConstraint[] array
+  
+  // AI-Generated Content (stored as JSON, optional)
+  solutions   Json?        // ProblemSolutions structure
+  explanations Json?       // ProblemExplanations structure
+  hints       Json?        // ProblemHints structure
+  
+  // Metadata
+  isPremium   Boolean      @default(false)
+  scrapedAt   DateTime     @default(now())
+  problemDate DateTime
+  
+  // AI Formatting Metadata
+  formattedAt DateTime?   // When AI formatted this problem
+  aiModel     String?     // Which AI model was used (e.g., "gemini-2.0-flash")
+  aiConfidence Float?     // AI confidence score (0-1)
+  
+  // Relations
+  logs ProblemLog[]
+
+  // Unique constraint: same provider, question type, and date can only have one problem
+  @@unique([provider, questionType, problemDate])
+  @@index([provider, questionType, problemDate])
+  @@index([provider, questionType])
+  @@index([questionType])
+  @@index([formattedAt])
+}

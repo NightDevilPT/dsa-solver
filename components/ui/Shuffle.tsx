@@ -356,7 +356,7 @@ const Shuffle: React.FC<ShuffleProps> = ({
   };
 
   const classes = `${baseTw} ${ready ? 'visible' : 'invisible'} ${className}`.trim();
-  const Tag = (tag || 'p') as keyof JSX.IntrinsicElements;
+  const Tag = (tag || 'p') as string;
 
   return React.createElement(Tag, { ref: ref as any, className: classes, style: commonStyle }, text);
 };

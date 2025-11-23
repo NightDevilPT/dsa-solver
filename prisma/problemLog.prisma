@@ -1,13 +1,15 @@
-// DailyQuestionLog Model Schema
-// This is the source of truth for the DailyQuestionLog model
+// ProblemLog Model Schema
+// This is the source of truth for the ProblemLog model
 // Uses: DeliveryStatus enum (defined in schema.prisma)
+// Tracks delivery and submission history for each problem sent to each user
+// Records: email delivery status, code submission status, retry attempts, errors
 // Run: npm run prisma:combine to update schema.prisma
 
-model DailyQuestionLog {
+model ProblemLog {
   id               String         @id @default(cuid())
   userId           String
   providerConfigId String
-  dailyQuestionId  String
+  problemId        String
   status           DeliveryStatus @default(PENDING)
   sentAt           DateTime?
   emailSent        Boolean        @default(false)
@@ -20,7 +22,7 @@ model DailyQuestionLog {
 
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   providerConfig ProviderConfig @relation(fields: [providerConfigId], references: [id], onDelete: Cascade)
-  dailyQuestion  DailyQuestion  @relation(fields: [dailyQuestionId], references: [id], onDelete: Cascade)
+  problem        Problem        @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, providerConfigId, dailyQuestionId])
+  @@unique([userId, providerConfigId, problemId])
 }

@@ -19,7 +19,7 @@ model User {
   providerConfigs   ProviderConfig[]
   scheduledTasks    ScheduledTask[]
   authTokens        AuthToken[]
-  dailyQuestionLogs DailyQuestionLog[]
+  problemLogs       ProblemLog[]
 
   @@index([email])
 }

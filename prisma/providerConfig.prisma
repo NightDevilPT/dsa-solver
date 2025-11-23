@@ -15,7 +15,7 @@ model ProviderConfig {
 
   user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   scheduledTasks    ScheduledTask[]
-  dailyQuestionLogs DailyQuestionLog[]
+  problemLogs       ProblemLog[]
 
   @@unique([userId, provider])
 }
