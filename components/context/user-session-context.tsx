@@ -38,6 +38,7 @@ export interface UserSessionContextValue {
 	isAuthenticated: boolean;
 	showLoginModal: boolean;
 	setShowLoginModal: (show: boolean) => void;
+	logout: () => void;
 }
 
 // Context
@@ -72,12 +73,14 @@ export const UserSessionContextProvider = ({
 				"/api/protected/auth/session"
 			);
 
-			// Handle errors - show login modal (skip on auth pages)
+			// Handle errors - show login modal (skip on auth pages and home page)
 			if (result.statusCode >= 400 || !result.success) {
 				setUser(null);
 				setError(result.message || "Session expired");
-				// Don't show modal on auth pages
-				if (!pathname?.includes("/auth/")) {
+				// Don't show modal on auth pages or home page
+				const isAuthPage = pathname?.includes("/auth/");
+				const isHomePage = pathname?.split("/").filter(Boolean).length === 1; // e.g., /en or /nl
+				if (!isAuthPage && !isHomePage) {
 					setShowLoginModal(true);
 				}
 				setIsLoading(false);
@@ -96,8 +99,10 @@ export const UserSessionContextProvider = ({
 			console.error("Session fetch error:", err);
 			setError("Failed to fetch session");
 			setUser(null);
-			// Don't show modal on auth pages
-			if (!pathname?.includes("/auth/")) {
+			// Don't show modal on auth pages or home page
+			const isAuthPage = pathname?.includes("/auth/");
+			const isHomePage = pathname?.split("/").filter(Boolean).length === 1; // e.g., /en or /nl
+			if (!isAuthPage && !isHomePage) {
 				setShowLoginModal(true);
 			}
 		} finally {
@@ -105,14 +110,17 @@ export const UserSessionContextProvider = ({
 		}
 	}, [pathname]);
 
-	// Fetch session on mount (skip on auth pages to avoid redirect loops)
+	// Fetch session on mount and when pathname changes
+	// Always fetch to know authentication state, but only show modal on non-home, non-auth pages
 	useEffect(() => {
-		// Don't fetch session on auth pages
-		if (pathname?.includes("/auth/")) {
+		// Skip fetching on auth pages only (to avoid unnecessary calls)
+		const isAuthPage = pathname?.includes("/auth/");
+		if (isAuthPage) {
 			setIsLoading(false);
 			return;
 		}
 
+		// Fetch session for all other pages (including home page)
 		fetchSession();
 	}, [fetchSession, pathname]);
 
@@ -122,6 +130,12 @@ export const UserSessionContextProvider = ({
 		fetchSession();
 		router.refresh();
 	}, [fetchSession, router]);
+
+	// Logout function - clears user state
+	const logout = useCallback(() => {
+		setUser(null);
+		setError(null);
+	}, []);
 
 	// Memoized context value
 	const value = useMemo<UserSessionContextValue>(
@@ -133,8 +147,9 @@ export const UserSessionContextProvider = ({
 			isAuthenticated: !!user,
 			showLoginModal,
 			setShowLoginModal,
+			logout,
 		}),
-		[user, isLoading, error, fetchSession, showLoginModal]
+		[user, isLoading, error, fetchSession, showLoginModal, logout]
 	);
 
 	return (

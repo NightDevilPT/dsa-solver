@@ -4,16 +4,19 @@ import React from "react";
 import Link from "next/link";
 import { Codesandbox } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { UserDropdown } from "./user-dropdown";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useTranslation } from "@/hooks/useTranslation";
 import { ThemeToggleCompact } from "./theme-toggle-compact";
 import { useThemeContext } from "@/components/context/theme-context";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
+import { useUserSession } from "@/components/context/user-session-context";
 
 export const HomeHeader = React.memo(function HomeHeader() {
 	const { locale } = useThemeContext();
 	const { t } = useTranslation();
+	const { isAuthenticated, setShowLoginModal } = useUserSession();
 
 	const buildPath = React.useCallback(
 		(path: string) => {
@@ -22,8 +25,12 @@ export const HomeHeader = React.memo(function HomeHeader() {
 		[locale]
 	);
 
+	const handleLoginClick = React.useCallback(() => {
+		setShowLoginModal(true);
+	}, [setShowLoginModal]);
+
 	return (
-		<header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+		<header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
 			<div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div className="flex h-16 items-center justify-between">
 					{/* Logo Section */}
@@ -46,31 +53,54 @@ export const HomeHeader = React.memo(function HomeHeader() {
 
 					{/* Actions Section */}
 					<div className="flex items-center gap-2">
-						{/* Divider */}{" "}
-						<Button
-							variant="ghost"
-							size="default"
-							asChild
-							className="hidden sm:flex"
-						>
-							<Link href={buildPath("/auth/login")}>
-								{t("home.header.login")}
-							</Link>
-						</Button>
-						<Button size="default" asChild>
-							<Link href={buildPath("/auth/signup")}>
-								{t("home.header.signup")}
-							</Link>
-						</Button>
-						<Separator orientation="vertical" className="w-1" />
-						{/* Theme Toggle */}
-						<ThemeToggleCompact />
-						{/* Language Switcher */}
-						<LanguageSwitcher
-							variant="outline"
-							showFlag={true}
-							showText={false}
-						/>
+						{isAuthenticated ? (
+							<>
+								{/* User Dropdown */}
+								<UserDropdown />
+								<Separator
+									orientation="vertical"
+									className="w-1"
+								/>
+								{/* Theme Toggle */}
+								<ThemeToggleCompact />
+								{/* Language Switcher */}
+								<LanguageSwitcher
+									variant="outline"
+									showFlag={true}
+									showText={false}
+								/>
+							</>
+						) : (
+							<>
+								{/* Login Button - Opens Modal */}
+								<Button
+									variant="ghost"
+									size="default"
+									onClick={handleLoginClick}
+									className="hidden sm:flex"
+								>
+									{t("home.header.login")}
+								</Button>
+								<Button
+									size="default"
+									onClick={handleLoginClick}
+								>
+									{t("home.header.signup")}
+								</Button>
+								<Separator
+									orientation="vertical"
+									className="w-1"
+								/>
+								{/* Theme Toggle */}
+								<ThemeToggleCompact />
+								{/* Language Switcher */}
+								<LanguageSwitcher
+									variant="outline"
+									showFlag={true}
+									showText={false}
+								/>
+							</>
+						)}
 					</div>
 				</div>
 			</div>

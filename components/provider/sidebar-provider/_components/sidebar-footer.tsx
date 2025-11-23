@@ -1,83 +1,16 @@
 "use client";
 
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuGroup,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { Settings, User } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import { useSidebar } from "@/components/ui/sidebar";
+import { UserAvatar } from "@/components/shared/user-avatar";
+import { UserMenu, getDisplayName } from "@/components/shared/user-menu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useThemeContext } from "@/components/context/theme-context";
 import { useUserSession } from "@/components/context/user-session-context";
-
-// Avatar component
-const Avatar = React.memo(function Avatar({
-	name,
-	email,
-	avatar,
-	size = "default",
-}: {
-	name: string | null;
-	email: string;
-	avatar?: string | null;
-	size?: "default" | "sm" | "lg";
-}) {
-	// Use avatar image if available
-	if (avatar) {
-		return (
-			<img
-				src={avatar}
-				alt={name || email}
-				className={cn(
-					"rounded-full shrink-0 object-cover",
-					size === "sm" && "h-8 w-8",
-					size === "default" && "h-10 w-10",
-					size === "lg" && "h-12 w-12"
-				)}
-			/>
-		);
-	}
-
-	// Generate initials from name or email's first letter
-	let initials: string;
-	if (name) {
-		initials = name
-			.split(" ")
-			.map((n) => n[0])
-			.join("")
-			.toUpperCase()
-			.slice(0, 2);
-	} else {
-		// Use email's first letter if no name available
-		initials = email.charAt(0).toUpperCase();
-	}
-
-	const sizeClasses = {
-		sm: "h-8 w-8 text-xs",
-		default: "h-10 w-10 text-sm",
-		lg: "h-12 w-12 text-base",
-	};
-
-	return (
-		<div
-			className={cn(
-				"flex items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold shrink-0",
-				sizeClasses[size]
-			)}
-		>
-			{initials}
-		</div>
-	);
-});
-
-Avatar.displayName = "Avatar";
 
 export const SidebarFooter = React.memo(function SidebarFooter() {
 	const { state } = useSidebar();
@@ -86,15 +19,10 @@ export const SidebarFooter = React.memo(function SidebarFooter() {
 	const router = useRouter();
 	const isCollapsed = state === "collapsed";
 
-	// Generate display name from user data
+	// Generate display name using the shared helper function
 	const displayName = React.useMemo(() => {
 		if (!user) return null;
-		if (user.firstName && user.lastName) {
-			return `${user.firstName} ${user.lastName}`;
-		}
-		if (user.firstName) return user.firstName;
-		if (user.username) return user.username;
-		return user.email;
+		return getDisplayName(user, "username-first");
 	}, [user]);
 
 	const buildPath = React.useCallback(
@@ -139,87 +67,70 @@ export const SidebarFooter = React.memo(function SidebarFooter() {
 		);
 	}
 
-	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<button
-					type="button"
-					className={cn(
-						"flex items-center w-full transition-all duration-300 ease-in-out rounded-lg hover:bg-sidebar-accent focus:bg-sidebar-accent focus:outline-none",
-						isCollapsed
-							? "justify-center px-2 py-2"
-							: "justify-start gap-3 px-3 py-2"
-					)}
-				>
-					<Avatar
-						name={displayName}
-						email={user.email}
-						avatar={user.avatar}
-						size={isCollapsed ? "sm" : "default"}
-					/>
+	// Custom trigger for sidebar
+	const sidebarTrigger = (
+		<button
+			type="button"
+			className={cn(
+				"flex items-center w-full transition-all duration-300 ease-in-out rounded-lg hover:bg-sidebar-accent focus:bg-sidebar-accent focus:outline-none",
+				isCollapsed
+					? "justify-center px-2 py-2"
+					: "justify-start gap-3 px-3 py-2"
+			)}
+		>
+			<UserAvatar
+				name={displayName}
+				email={user.email}
+				avatar={user.avatar}
+				size={isCollapsed ? "sm" : "default"}
+			/>
 
-					{!isCollapsed && (
-						<div className="flex w-full overflow-hidden items-center justify-between min-w-0 flex-1">
-							<div className="flex flex-col items-start justify-start gap-0.5 min-w-0 flex-1 overflow-hidden text-left">
-								<span className="w-full text-sm font-semibold text-sidebar-foreground truncate">
-									{displayName}
-								</span>
-								<span className="w-full text-xs text-sidebar-foreground/70 truncate">
-									{user.email}
-								</span>
-							</div>
-						</div>
-					)}
-				</button>
-			</DropdownMenuTrigger>
-
-			<DropdownMenuContent
-				align="end"
-				side="right"
-				sideOffset={8}
-				className="w-64"
-			>
-				{/* User Details Section */}
-				<DropdownMenuLabel className="p-0">
-					<div className="flex items-center gap-3 px-2 py-3">
-						<Avatar
-							name={displayName}
-							email={user.email}
-							avatar={user.avatar}
-							size="lg"
-						/>
-						<div className="flex flex-col gap-0.5 min-w-0 flex-1">
-							<span className="text-sm font-semibold text-foreground truncate">
-								{displayName}
-							</span>
-							<span className="text-xs text-muted-foreground truncate">
-								{user.email}
-							</span>
-						</div>
+			{!isCollapsed && (
+				<div className="flex w-full overflow-hidden items-center justify-between min-w-0 flex-1">
+					<div className="flex flex-col items-start justify-start gap-0.5 min-w-0 flex-1 overflow-hidden text-left">
+						<Label className="w-full text-sm font-semibold text-sidebar-foreground truncate">
+							{displayName}
+						</Label>
+						<Label className="w-full text-xs text-sidebar-foreground/70 truncate">
+							{user.email}
+						</Label>
 					</div>
-				</DropdownMenuLabel>
+				</div>
+			)}
+		</button>
+	);
 
-				<DropdownMenuSeparator />
+	// Custom menu items for sidebar (Profile instead of Dashboard)
+	const customMenuItems = (
+		<>
+			<DropdownMenuItem
+				onClick={() => handleNavigation("/profile")}
+				className="cursor-pointer"
+			>
+				<User className="h-4 w-4" />
+				<Label>Profile</Label>
+			</DropdownMenuItem>
+			<DropdownMenuItem
+				onClick={() => handleNavigation("/setting")}
+				className="cursor-pointer"
+			>
+				<Settings className="h-4 w-4" />
+				<Label>Settings</Label>
+			</DropdownMenuItem>
+		</>
+	);
 
-				{/* Navigation Routes */}
-				<DropdownMenuGroup>
-					<DropdownMenuItem
-						onClick={() => handleNavigation("/profile")}
-						className="cursor-pointer"
-					>
-						<User className="h-4 w-4" />
-						<span>Profile</span>
-					</DropdownMenuItem>
-					<DropdownMenuItem
-						onClick={() => handleNavigation("/setting")}
-						className="cursor-pointer"
-					>
-						<Settings className="h-4 w-4" />
-						<span>Settings</span>
-					</DropdownMenuItem>
-				</DropdownMenuGroup>
-			</DropdownMenuContent>
-		</DropdownMenu>
+	return (
+		<UserMenu
+			trigger={sidebarTrigger}
+			displayNameStrategy="username-first"
+			showLogout={false}
+			customMenuItems={customMenuItems}
+			align="end"
+			side="right"
+			sideOffset={8}
+			className="w-64"
+		/>
 	);
 });
 
