@@ -65,4 +65,3 @@ export const UserAvatar = React.memo(function UserAvatar({
 });
 
 UserAvatar.displayName = "UserAvatar";
-
