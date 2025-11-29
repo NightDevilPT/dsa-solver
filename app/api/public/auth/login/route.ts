@@ -2,14 +2,14 @@
 // Request login: Generate OTP, create user if doesn't exist, send OTP email
 // Public route - no authentication required
 
-import { ZodError } from 'zod';
-import prisma from '@/lib/prisma-client';
-import { generateOTP, hashOTP } from '@/lib/utils/otp';
-import { loginSchema } from '@/lib/validation/otp.schema';
-import { NextRequest, NextResponse } from 'next/server';
-import emailService from '@/lib/email-service/email.service';
-import { publicRoute } from '@/lib/middleware/public-route.middleware';
-import { buildOTPEmail } from '@/lib/email-service/templates/otp-mail';
+import { ZodError } from "zod";
+import prisma from "@/lib/prisma-client";
+import { generateOTP, hashOTP } from "@/lib/utils/otp";
+import { loginSchema } from "@/lib/validation/otp.schema";
+import { NextRequest, NextResponse } from "next/server";
+import emailService from "@/lib/email-service/email.service";
+import { publicRoute } from "@/lib/middleware/public-route.middleware";
+import { buildOTPEmail } from "@/lib/email-service/templates/otp-mail";
 
 const loginHandler = async (request: NextRequest) => {
 	try {
@@ -44,7 +44,7 @@ const loginHandler = async (request: NextRequest) => {
 		await prisma.authToken.updateMany({
 			where: {
 				userId: user.id,
-				tokenType: 'OTP',
+				tokenType: "OTP",
 				isUsed: false,
 				isRevoked: false,
 			},
@@ -58,8 +58,8 @@ const loginHandler = async (request: NextRequest) => {
 			data: {
 				userId: user.id,
 				token: hashedOTP,
-				tokenType: 'OTP',
-				purpose: 'LOGIN',
+				tokenType: "OTP",
+				purpose: "LOGIN",
 				expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
 			},
 		});
@@ -72,10 +72,10 @@ const loginHandler = async (request: NextRequest) => {
 				userName: user?.username || undefined,
 				isNewUser,
 			});
-			
+
 			await emailService.sendEmail(emailOptions);
 		} catch (emailError) {
-			console.error('Failed to send OTP email:', emailError);
+			console.error("Failed to send OTP email:", emailError);
 			// Continue even if email fails (OTP is still generated and stored)
 		}
 
@@ -83,34 +83,39 @@ const loginHandler = async (request: NextRequest) => {
 		return NextResponse.json({
 			data: {
 				message: isNewUser
-					? 'User created. OTP sent to email.'
-					: 'OTP sent to email.',
+					? "User created. OTP sent to email."
+					: "OTP sent to email.",
 				// Remove this in production - only for development
-				...(process.env.NODE_ENV === 'development' && { otpCode }),
+				...(process.env.NODE_ENV === "development" && { otpCode }),
 			},
-			message: 'OTP sent successfully',
+			message: "OTP sent successfully",
 		});
 	} catch (error) {
 		if (error instanceof ZodError) {
 			return NextResponse.json(
 				{
-					error: 'Validation error',
-					message: error.issues[0]?.message || 'Invalid input',
+					error: "Validation error",
+					message: error.issues[0]?.message || "Invalid input",
 				},
 				{ status: 400 }
 			);
 		}
 
-		console.error('Login error:', error);
+		console.error("Login error:", error);
 		return NextResponse.json(
 			{
-				error: 'Internal server error',
-				message: 'Failed to process login request',
+				error: "Internal server error",
+				message: "Failed to process login request",
 			},
 			{ status: 500 }
 		);
 	}
 };
 
-export const POST = publicRoute(loginHandler);
-
+// Apply stricter rate limiting for login: 1 request per minute per email
+export const POST = publicRoute(loginHandler, {
+	windowSeconds: 60,
+	maxRequests: 1,
+	keyPrefix: "otp-login",
+	message: "Too many OTP requests. Please try again in 1 minute."
+});
