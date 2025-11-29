@@ -1,12 +1,11 @@
 "use client";
 
 import React from "react";
-import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
+import { ScrollArea } from "../ui/scroll-area";
+import { usePathname } from "next/navigation";
 import { navItems } from "./sidebar-provider/route";
 import SidebarLayout from "./sidebar-provider/sidebar";
-import { ScrollArea } from "../ui/scroll-area";
-import { useUserSession } from "@/components/context/user-session-context";
 import { AppLoader } from "@/components/shared/app-loader";
 
 interface AppContentProps {
@@ -17,13 +16,16 @@ export const AppContent = React.memo(function AppContent({
 	children,
 }: AppContentProps) {
 	const pathname = usePathname();
-	const { isLoading: isSessionLoading } = useUserSession();
 	const { resolvedTheme } = useTheme();
 	const [isMounted, setIsMounted] = React.useState(false);
+	const hasInitiallyMounted = React.useRef(false);
 
 	// Wait for client-side mount to avoid hydration issues
 	React.useEffect(() => {
 		setIsMounted(true);
+		if (!hasInitiallyMounted.current) {
+			hasInitiallyMounted.current = true;
+		}
 	}, []);
 
 	// Check if current route is home page (e.g., /en or /en/)
@@ -46,14 +48,10 @@ export const AppContent = React.memo(function AppContent({
 	// Check if theme is ready (resolvedTheme is undefined until theme is mounted)
 	const isThemeReady = isMounted && resolvedTheme !== undefined;
 
-	// Show loading until:
-	// 1. Component is mounted (client-side)
-	// 2. Theme is ready (resolvedTheme is available)
-	// 3. Session is loaded (for protected pages - skip on auth pages and home page)
+	// Show loading only on the very first mount if theme or component is not ready
+	// Don't show loading on subsequent navigations
 	const shouldShowLoading =
-		!isMounted ||
-		!isThemeReady ||
-		(!isAuthPage && !isHomePage && isSessionLoading);
+		!hasInitiallyMounted.current && (!isMounted || !isThemeReady);
 
 	if (shouldShowLoading) {
 		return <AppLoader />;
@@ -62,9 +60,10 @@ export const AppContent = React.memo(function AppContent({
 	return shouldUseSidebar ? (
 		<SidebarLayout navItems={navItems}>{children}</SidebarLayout>
 	) : (
-		<ScrollArea className="w-full h-full overflow-auto">{children}</ScrollArea>
+		<ScrollArea className="w-full h-full overflow-auto">
+			{children}
+		</ScrollArea>
 	);
 });
 
 AppContent.displayName = "AppContent";
-

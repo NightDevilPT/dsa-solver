@@ -184,5 +184,39 @@
 			"back": "Terug naar E-mail",
 			"resend": "OTP opnieuw verzenden"
 		}
+	},
+	"providers": {
+		"services": {
+			"title": "Provider Services",
+			"description": "Blader door en configureer beschikbare services voor deze provider",
+			"comingSoon": "Binnenkort beschikbaar",
+			"inactive": "Inactief",
+			"active": "Actief",
+			"serviceType": "Servicetype",
+			"fetchError": "Services ophalen mislukt. Probeer het opnieuw.",
+			"retry": "Opnieuw proberen",
+			"noServices": "Geen services beschikbaar voor deze provider",
+			"previous": "Vorige",
+			"next": "Volgende",
+			"paginationInfo": "Toont {current} tot {end} van {total} services",
+			"showPerPage": "Toon per pagina",
+			"filters": {
+				"serviceType": "Servicetype",
+				"status": "Status",
+				"allTypes": "Alle typen",
+				"allStatus": "Alle status",
+				"active": "Actief",
+				"comingSoon": "Binnenkort beschikbaar",
+				"inactive": "Inactief",
+				"clear": "Filters wissen"
+			},
+			"table": {
+				"name": "Naam",
+				"description": "Beschrijving",
+				"serviceType": "Servicetype",
+				"status": "Status"
+			},
+			"emptyStateDescription": "Probeer uw filters aan te passen of kom later terug voor nieuwe services."
+		}
 	}
 }

@@ -184,5 +184,39 @@
 			"back": "Back to Email",
 			"resend": "Resend OTP"
 		}
+	},
+	"providers": {
+		"services": {
+			"title": "Provider Services",
+			"description": "Browse and configure available services for this provider",
+			"comingSoon": "Coming Soon",
+			"inactive": "Inactive",
+			"active": "Active",
+			"serviceType": "Service Type",
+			"fetchError": "Failed to fetch services. Please try again.",
+			"retry": "Retry",
+			"noServices": "No services available for this provider",
+			"previous": "Previous",
+			"next": "Next",
+			"paginationInfo": "Showing {current} to {end} of {total} services",
+			"showPerPage": "Show per page",
+			"filters": {
+				"serviceType": "Service Type",
+				"status": "Status",
+				"allTypes": "All Types",
+				"allStatus": "All Status",
+				"active": "Active",
+				"comingSoon": "Coming Soon",
+				"inactive": "Inactive",
+				"clear": "Clear Filters"
+			},
+			"table": {
+				"name": "Name",
+				"description": "Description",
+				"serviceType": "Service Type",
+				"status": "Status"
+			},
+			"emptyStateDescription": "Try adjusting your filters or check back later for new services."
+		}
 	}
 }

@@ -93,7 +93,7 @@ export abstract class BaseProviderService implements IProviderService {
 			// If it fails, user will get a clear error
 			executablePath = commonPaths[0] || undefined;
 
-			if (!executablePath) {
+		if (!executablePath) {
 				const examplePath = this.getExampleChromePath(process.platform);
 				throw new Error(
 					"CHROME_EXECUTABLE_PATH environment variable is required for Windows local development.\n\n" +
@@ -121,7 +121,7 @@ export abstract class BaseProviderService implements IProviderService {
 						"Install it: npm install @sparticuz/chromium"
 					);
 				} else {
-					throw new Error(
+			throw new Error(
 						"Failed to initialize browser with @sparticuz/chromium.\n\n" +
 						"SOLUTION: Create a .env file in your project root and add:\n" +
 						`CHROME_EXECUTABLE_PATH="${examplePath}"\n\n` +
@@ -200,24 +200,24 @@ export abstract class BaseProviderService implements IProviderService {
 		}
 
 		try {
-			this.page = await this.browser.newPage();
+		this.page = await this.browser.newPage();
 
 			// Set default timeout for page operations
 			this.page.setDefaultTimeout(this.DEFAULT_TIMEOUT);
 			this.page.setDefaultNavigationTimeout(this.DEFAULT_TIMEOUT);
 
-			// Common page settings
-			await this.page.setViewport({ width: 1920, height: 1080 });
-			await this.page.setUserAgent(
-				"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-			);
+		// Common page settings
+		await this.page.setViewport({ width: 1920, height: 1080 });
+		await this.page.setUserAgent(
+			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+		);
 
 			// Set extra headers to avoid detection
 			await this.page.setExtraHTTPHeaders({
 				'Accept-Language': 'en-US,en;q=0.9',
 			});
 
-			return this.page;
+		return this.page;
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error);
 			throw new Error(`Failed to create page: ${errorMessage}`);
@@ -235,12 +235,12 @@ export abstract class BaseProviderService implements IProviderService {
 		if (this.page) {
 			try {
 				if (!this.page.isClosed()) {
-					await this.page.close();
+			await this.page.close();
 				}
 			} catch (error) {
 				cleanupErrors.push(`Page close error: ${error instanceof Error ? error.message : String(error)}`);
 			} finally {
-				this.page = null;
+			this.page = null;
 			}
 		}
 
@@ -248,12 +248,12 @@ export abstract class BaseProviderService implements IProviderService {
 		if (this.browser) {
 			try {
 				if (this.browser.isConnected()) {
-					await this.browser.close();
+			await this.browser.close();
 				}
 			} catch (error) {
 				cleanupErrors.push(`Browser close error: ${error instanceof Error ? error.message : String(error)}`);
 			} finally {
-				this.browser = null;
+			this.browser = null;
 			}
 		}
 
@@ -350,9 +350,9 @@ export abstract class BaseProviderService implements IProviderService {
 			return text;
 		} catch (error) {
 			if (required) {
-				throw new Error(
+			throw new Error(
 					`Failed to extract required text from "${selector}": ${error instanceof Error ? error.message : String(error)}`
-				);
+			);
 			}
 			// Return empty string if not required
 			return "";

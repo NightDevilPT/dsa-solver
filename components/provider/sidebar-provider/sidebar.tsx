@@ -41,7 +41,7 @@ const SidebarLayout = ({ children, navItems = [] }: SidebarLayoutProps) => {
 			<SidebarInset className="w-full h-screen">
 				<main className="w-full grid grid-rows-[60px_1fr]">
 					<SidebarInsetHeader />
-					<ScrollArea className="w-full h-[calc(100vh-60px)] overflow-auto p-5">
+					<ScrollArea className="w-full h-[calc(100vh-60px)] overflow-auto p-0 py-5">
 						{children}
 					</ScrollArea>
 				</main>
