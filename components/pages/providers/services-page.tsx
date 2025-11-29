@@ -13,12 +13,13 @@ import { Button } from "@/components/ui/button";
 import apiService from "@/lib/api-service/api.service";
 import { ApiResponse } from "@/interface/api.interface";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useRouter, usePathname } from "next/navigation";
 import { ServiceCard } from "./_components/service-card";
 import { Pagination } from "@/components/shared/pagination";
 import { ProviderType } from "@/lib/generated/prisma/enums";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useThemeContext } from "@/components/context/theme-context";
-import { ViewToggle, ViewMode } from "@/components/shared/view-toggle";
+import { ViewToggle } from "@/components/shared/view-toggle";
 import { ServicesFilter, ServiceFilters } from "./_components/services-filter";
 import { ServicesPageSkeleton } from "./_components/services-page-skeleton";
 import { DataTable, DataTableColumn } from "@/components/shared/data-table";
@@ -29,7 +30,9 @@ interface ServicesPageProps {
 
 export function ServicesPage({ providerType }: ServicesPageProps) {
 	const { t } = useTranslation();
-	const { sidebarState } = useThemeContext();
+	const { sidebarState, locale, viewMode, setViewMode } = useThemeContext();
+	const router = useRouter();
+	const pathname = usePathname();
 	const [services, setServices] = useState<ProviderService[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -37,7 +40,6 @@ export function ServicesPage({ providerType }: ServicesPageProps) {
 	const [limit, setLimit] = useState(10);
 	const [filters, setFilters] = useState<ServiceFilters>({});
 	const [allServiceTypes, setAllServiceTypes] = useState<string[]>([]);
-	const [view, setView] = useState<ViewMode>("grid");
 	const [pagination, setPagination] = useState({
 		page: 1,
 		limit: 1,
@@ -45,6 +47,26 @@ export function ServicesPage({ providerType }: ServicesPageProps) {
 		totalPages: 0,
 		hasMore: false,
 	});
+
+	// Get current locale from pathname or context
+	const currentLocale = useMemo(() => {
+		if (pathname) {
+			const segments = pathname.split("/").filter(Boolean);
+			if (segments.length > 0) {
+				return segments[0];
+			}
+		}
+		return locale || "en";
+	}, [pathname, locale]);
+
+	// Navigation handler - includes default tab=overview
+	const handleServiceClick = useCallback(
+		(serviceId: string) => {
+			const path = `/${currentLocale}/dashboard/providers/${providerType}/${serviceId}?tab=overview`;
+			router.push(path);
+		},
+		[currentLocale, providerType, router]
+	);
 
 	// Calculate grid columns based on sidebar state
 	const gridColumns = useMemo(() => {
@@ -300,7 +322,7 @@ export function ServicesPage({ providerType }: ServicesPageProps) {
 	];
 
 	if (loading && services.length === 0) {
-		return <ServicesPageSkeleton />;
+		return <ServicesPageSkeleton viewMode={viewMode} />;
 	}
 
 	if (error && services.length === 0) {
@@ -336,7 +358,7 @@ export function ServicesPage({ providerType }: ServicesPageProps) {
 					onFiltersChange={handleFiltersChange}
 					serviceTypes={allServiceTypes}
 				/>
-				<ViewToggle view={view} onViewChange={setView} />
+				<ViewToggle view={viewMode} onViewChange={setViewMode} />
 			</div>
 
 			{/* Services Grid or Table */}
@@ -346,16 +368,13 @@ export function ServicesPage({ providerType }: ServicesPageProps) {
 						{t("providers.services.noServices")}
 					</Label>
 				</div>
-			) : view === "grid" ? (
+			) : viewMode === "grid" ? (
 				<div className={cn("grid gap-4", gridColumns)}>
 					{services.map((service) => (
 						<ServiceCard
 							key={service.id}
 							service={service}
-							onClick={() => {
-								// TODO: Navigate to service detail page
-								// router.push(`/dashboard/providers/${providerType}/services/${service.id}`);
-							}}
+							onClick={() => handleServiceClick(service.id)}
 						/>
 					))}
 				</div>
@@ -370,10 +389,7 @@ export function ServicesPage({ providerType }: ServicesPageProps) {
 					emptyStateDescription={t(
 						"providers.services.emptyStateDescription"
 					)}
-					onRowClick={(row) => {
-						// TODO: Navigate to service detail page
-						// router.push(`/dashboard/providers/${providerType}/services/${row.id}`);
-					}}
+					onRowClick={(row) => handleServiceClick(row.id)}
 				/>
 			)}
 

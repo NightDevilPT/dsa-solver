@@ -39,8 +39,7 @@ model NotificationConfig {
   autoSubmitOnlyIfSolved Boolean @default(true)  // Only submit if problem is solved
   autoSubmitSendConfirmation Boolean @default(true)  // Send confirmation email after submission
   autoSubmitConfirmationSubject String?  // Subject for confirmation email (supports variables like {problemTitle})
-  preferredLanguage  String   @default("python")  // Preferred programming language for auto-submit
-  
+
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 

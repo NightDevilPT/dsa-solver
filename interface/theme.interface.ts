@@ -19,6 +19,7 @@ export enum ColorScheme {
 export type SidebarState = "expanded" | "collapsed";
 export type SidebarVariant = "sidebar" | "floating" | "inset";
 export type SidebarSide = "left" | "right";
+export type ViewMode = "grid" | "table";
 
 export interface ThemeProviderConfig {
   /**
@@ -49,6 +50,10 @@ export interface ThemeProviderConfig {
    * Default sidebar side when nothing is persisted.
    */
   defaultSidebarSide?: SidebarSide;
+  /**
+   * Default view mode (grid/table) when nothing is persisted.
+   */
+  defaultViewMode?: ViewMode;
 }
 
 export type ThemeProviderProps = PropsWithChildren<ThemeProviderConfig>;
@@ -70,5 +75,7 @@ export interface ThemeContextValue {
   setSidebarVariant: (variant: SidebarVariant) => void;
   sidebarSide: SidebarSide;
   setSidebarSide: (side: SidebarSide) => void;
+  viewMode: ViewMode;
+  setViewMode: (mode: ViewMode) => void;
 }
 

@@ -46,70 +46,58 @@ export async function generateUserProviderServices(
 
 	for (const service of selectedServices) {
 		// Generate service config based on service type
+		const timezones = [
+			"UTC",
+			"America/New_York",
+			"America/Chicago",
+			"America/Los_Angeles",
+			"Europe/London",
+			"Europe/Paris",
+			"Asia/Tokyo",
+			"Asia/Kolkata",
+			"Australia/Sydney",
+		];
+
+		const languages = [
+			"python",
+			"javascript",
+			"typescript",
+			"java",
+			"cpp",
+			"go",
+			"rust",
+		];
+
+		const scheduledTimes = ["08:00", "09:00", "10:00", "14:00", "18:00"];
+
 		let serviceConfig: any = {};
+
 		if (service.serviceType === "DAILY_CHALLENGE") {
+			// Daily Challenge: only timezone, scheduledTime, and language
 			serviceConfig = {
-				autoFetch: true,
-				preferredTime: "09:00",
-				timezone: "UTC",
-				skipWeekends: false,
-				skipPremium: true,
-				fetchOnStartup: false,
+				timezone: timezones[Math.floor(Math.random() * timezones.length)],
+				scheduledTime:
+					scheduledTimes[Math.floor(Math.random() * scheduledTimes.length)],
+				language: languages[Math.floor(Math.random() * languages.length)],
 			};
-		} else if (service.serviceType === "FILTER_CHALLENGE") {
-			// Randomize filter config for variety
+		} else {
+			// Other services: include difficulty and numberOfQuestions
 			const difficulties = [
 				["EASY"],
 				["MEDIUM"],
 				["HARD"],
 				["EASY", "MEDIUM"],
 				["MEDIUM", "HARD"],
-			][Math.floor(Math.random() * 5)];
-			const topics = [
-				["ARRAY", "STRING"],
-				["DYNAMIC_PROGRAMMING", "TWO_POINTERS"],
-				["HASH_TABLE", "STRING"],
-				["ARRAY", "STRING", "DYNAMIC_PROGRAMMING"],
-			][Math.floor(Math.random() * 4)];
+				["EASY", "MEDIUM", "HARD"],
+			][Math.floor(Math.random() * 6)];
 
 			serviceConfig = {
+				difficulty: difficulties,
+				timezone: timezones[Math.floor(Math.random() * timezones.length)],
+				scheduledTime:
+					scheduledTimes[Math.floor(Math.random() * scheduledTimes.length)],
 				numberOfQuestions: Math.floor(Math.random() * 5) + 3, // 3-7 questions
-				difficulties,
-				topics,
-				questionTypes: ["PROBLEM_OF_THE_DAY", "PRACTICE_PROBLEM"],
-				scheduleTime: ["08:00", "09:00", "10:00"][
-					Math.floor(Math.random() * 3)
-				],
-				autoFetch: true,
-				timezone: "UTC",
-				excludeSolved: true,
-				sortBy: ["DIFFICULTY", "RATING", "ACCEPTANCE_RATE"][
-					Math.floor(Math.random() * 3)
-				],
-				sortOrder: ["ASC", "DESC"][Math.floor(Math.random() * 2)],
-			};
-		} else if (service.serviceType === "WEEKLY_CHALLENGE") {
-			serviceConfig = {
-				autoFetch: true,
-				preferredDay: ["MONDAY", "TUESDAY", "WEDNESDAY"][
-					Math.floor(Math.random() * 3)
-				],
-				preferredTime: "09:00",
-				timezone: "UTC",
-				includePastChallenges: false,
-				notifyBeforeStart: true,
-				notifyBeforeStartHours: 24,
-			};
-		} else if (service.serviceType === "CONTEST_REMINDERS") {
-			serviceConfig = {
-				reminderTimes: ["24:00", "12:00", "01:00"],
-				timezone: "UTC",
-				includeUpcoming: true,
-				includeOngoing: false,
-				minContestDuration: 60,
-				maxContestDuration: 180,
-				filterByProvider: true,
-				providerTypes: [service.providerType],
+				language: languages[Math.floor(Math.random() * languages.length)],
 			};
 		}
 
@@ -153,9 +141,7 @@ export async function generateUserProviderServices(
 				preferredTime:
 					service.serviceType === "CONTEST_REMINDERS"
 						? null
-						: serviceConfig.preferredTime ||
-						  serviceConfig.scheduleTime ||
-						  "09:00",
+						: serviceConfig.scheduledTime || "09:00",
 				includeBruteForce: false,
 				includeOptimized,
 				includeBestPractice,
@@ -177,9 +163,6 @@ export async function generateUserProviderServices(
 				autoSubmitConfirmationSubject: autoSubmit
 					? "Solution Submitted: {problemTitle}"
 					: null,
-				preferredLanguage: ["python", "typescript", "java", "cpp"][
-					Math.floor(Math.random() * 4)
-				],
 			},
 		});
 

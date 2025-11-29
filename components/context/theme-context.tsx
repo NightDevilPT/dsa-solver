@@ -19,6 +19,7 @@ import {
   SidebarState,
   SidebarVariant,
   SidebarSide,
+  ViewMode,
 } from "@/interface/theme.interface";
 import {
   locales as availableLocales,
@@ -34,6 +35,7 @@ const STORAGE_KEYS = {
   sidebarState: `${STORAGE_NAMESPACE}:sidebar-state`,
   sidebarVariant: `${STORAGE_NAMESPACE}:sidebar-variant`,
   sidebarSide: `${STORAGE_NAMESPACE}:sidebar-side`,
+  viewMode: `${STORAGE_NAMESPACE}:view-mode`,
 } as const;
 
 const FALLBACK_THEME_MODE: ThemeMode = "system";
@@ -41,6 +43,7 @@ const FALLBACK_COLOR_SCHEME = ColorScheme.Default;
 const FALLBACK_SIDEBAR_STATE: SidebarState = "expanded";
 const FALLBACK_SIDEBAR_VARIANT: SidebarVariant = "sidebar";
 const FALLBACK_SIDEBAR_SIDE: SidebarSide = "left";
+const FALLBACK_VIEW_MODE: ViewMode = "grid";
 
 const DEFAULT_AVAILABLE_COLOR_SCHEMES = Object.values(ColorScheme) as ColorScheme[];
 
@@ -70,6 +73,12 @@ const isSidebarSide = (value: unknown): value is SidebarSide =>
   typeof value === "string" &&
   (SIDEBAR_SIDES as string[]).includes(value as string);
 
+const VIEW_MODES: ViewMode[] = ["grid", "table"];
+
+const isViewMode = (value: unknown): value is ViewMode =>
+  typeof value === "string" &&
+  (VIEW_MODES as string[]).includes(value as string);
+
 export const ThemeContextProvider = ({
   children,
   defaultThemeMode = FALLBACK_THEME_MODE,
@@ -79,6 +88,7 @@ export const ThemeContextProvider = ({
   defaultSidebarState = FALLBACK_SIDEBAR_STATE,
   defaultSidebarVariant = FALLBACK_SIDEBAR_VARIANT,
   defaultSidebarSide = FALLBACK_SIDEBAR_SIDE,
+  defaultViewMode = FALLBACK_VIEW_MODE,
 }: ThemeProviderProps) => {
   const { theme, setTheme, resolvedTheme } = useTheme();
 
@@ -96,6 +106,8 @@ export const ThemeContextProvider = ({
     useState<SidebarVariant>(defaultSidebarVariant);
   const [sidebarSide, setSidebarSideInternal] =
     useState<SidebarSide>(defaultSidebarSide);
+  const [viewMode, setViewModeInternal] =
+    useState<ViewMode>(defaultViewMode);
 
   const initializedThemeMode = useRef(false);
 
@@ -157,6 +169,15 @@ export const ThemeContextProvider = ({
   }, [defaultSidebarSide]);
 
   useEffect(() => {
+    const storedViewMode = window.localStorage.getItem(STORAGE_KEYS.viewMode);
+    if (storedViewMode && isViewMode(storedViewMode)) {
+      setViewModeInternal(storedViewMode);
+    } else {
+      setViewModeInternal(defaultViewMode);
+    }
+  }, [defaultViewMode]);
+
+  useEffect(() => {
     document.documentElement.dataset.colorScheme = colorScheme;
     window.localStorage.setItem(STORAGE_KEYS.colorScheme, colorScheme);
   }, [colorScheme]);
@@ -186,6 +207,10 @@ export const ThemeContextProvider = ({
     document.documentElement.dataset.sidebarSide = sidebarSide;
     window.localStorage.setItem(STORAGE_KEYS.sidebarSide, sidebarSide);
   }, [sidebarSide]);
+
+  useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEYS.viewMode, viewMode);
+  }, [viewMode]);
 
   const setThemeMode = useCallback(
     (mode: ThemeMode) => {
@@ -231,6 +256,10 @@ export const ThemeContextProvider = ({
     setSidebarSideInternal(nextSide);
   }, []);
 
+  const setViewMode = useCallback((nextMode: ViewMode) => {
+    setViewModeInternal(nextMode);
+  }, []);
+
   const value = useMemo<ThemeContextValue>(() => {
     const currentTheme = (theme ?? defaultThemeMode) as ThemeMode;
     const resolved = ((resolvedTheme ?? "light") === "dark"
@@ -254,6 +283,8 @@ export const ThemeContextProvider = ({
       setSidebarVariant,
       sidebarSide,
       setSidebarSide,
+      viewMode,
+      setViewMode,
     };
   }, [
     theme,
@@ -273,6 +304,8 @@ export const ThemeContextProvider = ({
     setSidebarVariant,
     sidebarSide,
     setSidebarSide,
+    viewMode,
+    setViewMode,
   ]);
 
   return (
