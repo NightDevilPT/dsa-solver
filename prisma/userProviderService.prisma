@@ -1,0 +1,27 @@
+// UserProviderService Model Schema
+// This is the source of truth for the UserProviderService model
+// Run: npm run prisma:combine to update schema.prisma
+
+model UserProviderService {
+  id                String            @id @default(cuid())
+  userId            String
+  providerServiceId String            // Reference to ProviderService
+  isEnabled         Boolean           @default(false)  // User enables/disables this service
+  serviceConfig     Json?             // Service-specific settings (optional)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Relations
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  providerService   ProviderService   @relation(fields: [providerServiceId], references: [id], onDelete: Cascade)
+  notificationConfig NotificationConfig?  // One-to-one relation with NotificationConfig
+  encryptedCredentials EncryptedCredentials?  // One-to-one relation with EncryptedCredentials
+  scheduledTasks    ScheduledTask[]  // Scheduled tasks for this service
+  problemLogs       ProblemLog[]     // Problem logs for this service
+
+  @@unique([userId, providerServiceId])
+  @@index([userId])
+  @@index([providerServiceId])
+  @@index([isEnabled])
+}
+

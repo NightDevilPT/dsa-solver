@@ -49,12 +49,8 @@ lib/
 │   │   ├── base-ai.service.ts          # Abstract base class
 │   │   ├── prompts/
 │   │   │   ├── problem-format.prompt.ts # Problem formatting prompt
-│   │   │   ├── solution.prompt.ts       # Solution generation prompt
-│   │   │   ├── explanation.prompt.ts   # Explanation generation prompt
-│   │   │   └── hints.prompt.ts         # Hints generation prompt
 │   │   └── schemas/
 │   │       ├── ai-response.schema.ts   # Zod schemas for validation
-│   │       └── solution.schema.ts      # Solution response schema
 │   │
 │   ├── providers/
 │   │   ├── openai.service.ts           # OpenAI implementation

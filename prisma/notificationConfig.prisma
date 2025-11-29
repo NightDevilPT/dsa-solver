@@ -1,19 +1,48 @@
 // NotificationConfig Model Schema
 // This is the source of truth for the NotificationConfig model
+// Updated to link to UserProviderService instead of ProviderConfig
 // Run: npm run prisma:combine to update schema.prisma
 
 model NotificationConfig {
   id                 String   @id @default(cuid())
-  providerConfigId   String   @unique
-  includeExplanation Boolean  @default(false)
-  includeBruteForce  Boolean  @default(false)
-  includeOptimized   Boolean  @default(false)
-  includeHints       Boolean  @default(false)
+  userProviderServiceId String   @unique  // Reference to UserProviderService (instead of ProviderConfig)
+  enabled            Boolean  @default(false)  // Whether notifications are enabled
+  
+  // Email Configuration
+  mailSubject        String?  // Email subject line (supports variables like {problemTitle}, {numberOfQuestions}, {contestName})
+  emailFrequency     String   @default("DAILY")  // DAILY, WEEKLY, INSTANT
+  preferredTime      String?  // Time in HH:mm format (e.g., "09:00") - null for INSTANT
+  
+  // Solutions Configuration (matches Problem.solutions structure)
+  includeBruteForce  Boolean  @default(false)  // Include solutions.bruteForce (code + explanation)
+  includeOptimized   Boolean  @default(false)  // Include solutions.optimized (code + explanation)
+  includeBestPractice Boolean @default(false)  // Include solutions.bestPractice (code + explanation)
+  includeAlternative Boolean  @default(false)  // Include solutions.alternative[] (array of alternative solutions)
+  
+  // Explanations Configuration (matches Problem.explanations structure)
+  includeExplanationOverview Boolean @default(false)  // Include explanations.overview
+  includeExplanationApproach Boolean @default(false)  // Include explanations.approach
+  includeStepByStep  Boolean  @default(false)  // Include explanations.stepByStep[]
+  includeKeyInsights Boolean  @default(false)  // Include explanations.keyInsights[]
+  includeCommonMistakes Boolean @default(false)  // Include explanations.commonMistakes[]
+  includeRelatedProblems Boolean @default(false)  // Include explanations.relatedProblems[]
+  
+  // Hints Configuration (matches Problem.hints structure)
+  includeHintsProgressive Boolean @default(false)  // Include hints.progressive[] (array of progressive hints)
+  includeHintsApproach Boolean @default(false)  // Include hints.approach
+  includeHintsDataStructure Boolean @default(false)  // Include hints.dataStructure
+  includeHintsAlgorithm Boolean @default(false)  // Include hints.algorithm
+  
+  // Auto-Submit Configuration
   autoSubmit         Boolean  @default(false)
-  autoSubmitTime     String?  // Time in HH:mm format (e.g., "09:00" for 9 AM) - Required when autoSubmit is true
-  preferredLanguage  String   @default("en")
+  autoSubmitTime     String?  // Time in HH:mm format (e.g., "10:00") - Required when autoSubmit is true
+  autoSubmitOnlyIfSolved Boolean @default(true)  // Only submit if problem is solved
+  autoSubmitSendConfirmation Boolean @default(true)  // Send confirmation email after submission
+  autoSubmitConfirmationSubject String?  // Subject for confirmation email (supports variables like {problemTitle})
+  preferredLanguage  String   @default("python")  // Preferred programming language for auto-submit
+  
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  providerConfig ProviderConfig @relation(fields: [providerConfigId], references: [id], onDelete: Cascade)
+  userProviderService UserProviderService @relation(fields: [userProviderServiceId], references: [id], onDelete: Cascade)
 }

@@ -1,0 +1,27 @@
+// ProviderService Model Schema
+// This is the source of truth for the ProviderService model
+// Uses: ProviderType enum (defined in schema.prisma)
+// Run: npm run prisma:combine to update schema.prisma
+
+model ProviderService {
+  id                  String       @id @default(cuid())
+  name                String // Display name: "Daily Challenge"
+  description         String // Description: "Get daily coding problems with solutions"
+  imageUrl            String? // Image URL for service card: "/images/daily-challenge.svg"
+  providerType        ProviderType // LEETCODE, GFG, etc.
+  serviceType         String // Service type identifier: ["DAILY_CHALLENGE", "FILTER_CHALLENGE", "WEEKLY_CHALLENGE", "CONTEST_REMINDERS"]
+  serviceConfigSchema Json? // JSON schema defining the structure of serviceConfig for this service
+  order               Int          @default(0) // Display order
+  isActive            Boolean      @default(true) // Admin can enable/disable
+  isComingSoon        Boolean      @default(false) // Whether service is coming soon
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  // Relations
+  userProviderServices UserProviderService[]
+
+  @@unique([name, providerType])
+  @@index([providerType])
+  @@index([isActive])
+  @@index([serviceType])
+}
