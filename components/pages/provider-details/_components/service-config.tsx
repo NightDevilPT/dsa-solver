@@ -1,55 +1,36 @@
 "use client";
 
-import { toast } from "sonner";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { ProviderService } from "@/interface/provider-service.interface";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	ConfigToggle,
 	ConfigInput,
 	ConfigSelect,
 	ConfigArray,
 } from "./config-field-components";
-
-interface ServiceConfigProps {
-	service: ProviderService;
-}
-
-interface SchemaProperty {
-	type: string;
-	format?: string;
-	enum?: string[] | readonly string[];
-	default?: any;
-	description?: string;
-	minimum?: number;
-	maximum?: number;
-	items?: {
-		type: string;
-		enum?: string[] | readonly string[];
-	};
-}
-
-interface ServiceConfigSchema {
-	type: string;
-	properties: Record<string, SchemaProperty>;
-}
+import {
+	ServiceConfigProps,
+	ServiceConfigSchema,
+	SchemaProperty,
+} from "@/interface/provider-details.interface";
+import { Save } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "@/hooks/useTranslation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useProviderServiceContext } from "@/components/context/provider-service-context";
 
 // Using shared components from config-field-components.tsx
 
-export function ServiceConfig({ service }: ServiceConfigProps) {
+export function ServiceConfig({
+	service,
+	userProviderService,
+}: ServiceConfigProps) {
 	const { t } = useTranslation();
+	const { updateServiceConfig, loading: contextLoading } =
+		useProviderServiceContext();
 	const [config, setConfig] = useState<Record<string, any>>({});
-	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
-	const [hasUserRelation, setHasUserRelation] = useState(false);
-	const [userProviderServiceId, setUserProviderServiceId] = useState<
-		string | null
-	>(null);
 
 	// Parse serviceConfigSchema
 	const schema = useMemo<ServiceConfigSchema | null>(() => {
@@ -83,44 +64,14 @@ export function ServiceConfig({ service }: ServiceConfigProps) {
 		return defaults;
 	}, [schema]);
 
-	// TODO: Fetch user provider service relation
-	const fetchData = useCallback(async () => {
-		try {
-			setLoading(true);
-
-			// TODO: Uncomment when API is ready
-			// const response: ApiResponse<{
-			// 	id: string;
-			// 	providerServiceId: string;
-			// 	isEnabled: boolean;
-			// 	serviceConfig: Record<string, any> | null;
-			// }> = await apiService.get(
-			// 	`/api/protected/user-provider-services?providerServiceId=${service.id}`
-			// );
-			// if (response.success && response.data) {
-			// 	setHasUserRelation(true);
-			// 	setUserProviderServiceId(response.data.id);
-			// 	setConfig(response.data.serviceConfig || defaultConfig);
-			// } else {
-			// 	setHasUserRelation(false);
-			// 	setConfig(defaultConfig);
-			// }
-
-			// For now, simulate no relation
-			setHasUserRelation(false);
+	// Initialize config from userProviderService or default
+	useMemo(() => {
+		if (userProviderService?.serviceConfig) {
+			setConfig(userProviderService.serviceConfig);
+		} else {
 			setConfig(defaultConfig);
-		} catch (error) {
-			console.error("Error fetching data:", error);
-			setHasUserRelation(false);
-			setConfig(defaultConfig);
-		} finally {
-			setLoading(false);
 		}
-	}, [service.id, defaultConfig]);
-
-	useEffect(() => {
-		fetchData();
-	}, [fetchData]);
+	}, [userProviderService, defaultConfig]);
 
 	const handleFieldChange = (field: string, value: any) => {
 		setConfig((prev) => ({ ...prev, [field]: value }));
@@ -129,31 +80,9 @@ export function ServiceConfig({ service }: ServiceConfigProps) {
 	const handleSave = async () => {
 		try {
 			setSaving(true);
-
-			// TODO: Uncomment when API is ready
-			// if (userProviderServiceId) {
-			// 	await apiService.patch(
-			// 		`/api/protected/user-provider-services/${userProviderServiceId}`,
-			// 		{ serviceConfig: config }
-			// 	);
-			// } else {
-			// 	await apiService.post("/api/protected/user-provider-services", {
-			// 		providerServiceId: service.id,
-			// 		serviceConfig: config,
-			// 	});
-			// }
-
-			console.log("Service Configuration State:", {
-				...config,
-				hasUserRelation,
-				userProviderServiceId,
-			});
-			toast.success(t("providers.serviceDetail.config.saveSuccess"));
+			await updateServiceConfig({ serviceConfig: config });
 		} catch (error: any) {
 			console.error("Error saving config:", error);
-			toast.error(
-				error.message || t("providers.serviceDetail.config.saveError")
-			);
 		} finally {
 			setSaving(false);
 		}
@@ -176,7 +105,11 @@ export function ServiceConfig({ service }: ServiceConfigProps) {
 				groups.toggles.push({ key, prop });
 			} else if (prop.type === "array") {
 				groups.arrays.push({ key, prop });
-			} else if (prop.enum || prop.format === "time" || key.toLowerCase().includes("timezone")) {
+			} else if (
+				prop.enum ||
+				prop.format === "time" ||
+				key.toLowerCase().includes("timezone")
+			) {
 				groups.selects.push({ key, prop });
 			} else {
 				groups.inputs.push({ key, prop });
@@ -186,7 +119,7 @@ export function ServiceConfig({ service }: ServiceConfigProps) {
 		return groups;
 	}, [schema]);
 
-	if (loading) {
+	if (contextLoading) {
 		return (
 			<div className="space-y-6">
 				{Array.from({ length: 5 }).map((_, i) => (
@@ -215,7 +148,8 @@ export function ServiceConfig({ service }: ServiceConfigProps) {
 		);
 	}
 
-	const isDisabled = saving;
+	const hasUserRelation = !!userProviderService;
+	const isDisabled = saving || contextLoading;
 
 	return (
 		<div className="space-y-6">
@@ -360,8 +294,14 @@ export function ServiceConfig({ service }: ServiceConfigProps) {
 								}[] = [];
 
 								// Use enum from schema if available
-								const propEnum = prop.enum as string[] | undefined;
-								if (propEnum && Array.isArray(propEnum) && propEnum.length > 0) {
+								const propEnum = prop.enum as
+									| string[]
+									| undefined;
+								if (
+									propEnum &&
+									Array.isArray(propEnum) &&
+									propEnum.length > 0
+								) {
 									// Use enum values directly from schema, format labels
 									options = propEnum.map((val: string) => ({
 										value: val,
@@ -425,7 +365,9 @@ export function ServiceConfig({ service }: ServiceConfigProps) {
 							{groupedFields.arrays.map(({ key, prop }) => {
 								const arrayValue =
 									config[key] ?? prop.default ?? [];
-								const enumOptions = prop.items?.enum as string[] | undefined;
+								const enumOptions = prop.items?.enum as
+									| string[]
+									| undefined;
 
 								return (
 									<ConfigArray

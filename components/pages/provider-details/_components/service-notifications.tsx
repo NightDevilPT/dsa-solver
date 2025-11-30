@@ -1,189 +1,79 @@
 "use client";
 
-import { ConfigToggle, ConfigInput } from "./config-field-components";
-import { toast } from "sonner";
+import {
+	ServiceNotificationsProps,
+	NotificationConfig,
+} from "@/interface/provider-details.interface";
 import { Save } from "lucide-react";
+import { useState, useMemo } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useState, useEffect, useCallback } from "react";
-import { ProviderService } from "@/interface/provider-service.interface";
+import { ConfigToggle, ConfigInput } from "./config-field-components";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-interface NotificationConfig {
-	id: string;
-	userProviderServiceId: string;
-	enabled: boolean;
-	mailSubject: string | null;
-	emailFrequency: string;
-	preferredTime: string | null;
-	includeBruteForce: boolean;
-	includeOptimized: boolean;
-	includeBestPractice: boolean;
-	includeAlternative: boolean;
-	includeExplanationOverview: boolean;
-	includeExplanationApproach: boolean;
-	includeStepByStep: boolean;
-	includeKeyInsights: boolean;
-	includeCommonMistakes: boolean;
-	includeRelatedProblems: boolean;
-	includeHintsProgressive: boolean;
-	includeHintsApproach: boolean;
-	includeHintsDataStructure: boolean;
-	includeHintsAlgorithm: boolean;
-	autoSubmit: boolean;
-	autoSubmitTime: string | null;
-	autoSubmitOnlyIfSolved: boolean;
-	autoSubmitSendConfirmation: boolean;
-	autoSubmitConfirmationSubject: string | null;
-	createdAt: Date;
-	updatedAt: Date;
-}
-
-interface ServiceNotificationsProps {
-	service: ProviderService;
-}
+import { useProviderServiceContext } from "@/components/context/provider-service-context";
 
 // Using shared components from config-field-components.tsx
 
-export function ServiceNotifications({ service }: ServiceNotificationsProps) {
+export function ServiceNotifications({
+	service,
+	userProviderService,
+	notificationConfig: initialNotificationConfig,
+}: ServiceNotificationsProps) {
 	const { t } = useTranslation();
+	const { updateNotificationConfig, loading: contextLoading } =
+		useProviderServiceContext();
 	const [notificationConfig, setNotificationConfig] =
-		useState<NotificationConfig | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [hasUserRelation, setHasUserRelation] = useState(false);
-	const [userProviderServiceId, setUserProviderServiceId] = useState<
-		string | null
-	>(null);
-
-	// TODO: Fetch user provider service relation
-	// This function will be implemented in the future
-	// const fetchUserProviderService = async () => {
-	// 	try {
-	// 		const response: ApiResponse<{
-	// 			id: string;
-	// 			providerServiceId: string;
-	// 			isEnabled: boolean;
-	// 		}> = await apiService.get(
-	// 			`/api/protected/user-provider-services?providerServiceId=${service.id}`
-	// 		);
-	// 		if (response.success && response.data) {
-	// 			setHasUserRelation(true);
-	// 			setUserProviderServiceId(response.data.id);
-	// 			return response.data.id;
-	// 		}
-	// 	} catch (error) {
-	// 		console.error("Error fetching user provider service:", error);
-	// 	}
-	// 	return null;
-	// };
-
-	// TODO: Fetch notification config from API
-	// This function will be implemented in the future
-	// const fetchNotificationConfig = async (userProviderServiceId: string) => {
-	// 	try {
-	// 		const response: ApiResponse<NotificationConfig> = await apiService.get(
-	// 			`/api/protected/user-provider-services/${userProviderServiceId}/notifications`
-	// 		);
-	// 		if (response.success && response.data) {
-	// 			setNotificationConfig(response.data);
-	// 			return response.data;
-	// 		}
-	// 	} catch (error) {
-	// 		console.error("Error fetching notification config:", error);
-	// 	}
-	// 	return null;
-	// };
-
-	// TODO: Update notification config
-	// This function will be implemented in the future
-	// const updateNotificationConfig = async (
-	// 	field: keyof NotificationConfig,
-	// 	value: any
-	// ) => {
-	// 	if (!userProviderServiceId) return;
-	// 	try {
-	// 		const response: ApiResponse<NotificationConfig> = await apiService.patch(
-	// 			`/api/protected/user-provider-services/${userProviderServiceId}/notifications`,
-	// 			{ [field]: value }
-	// 		);
-	// 		if (response.success && response.data) {
-	// 			setNotificationConfig(response.data);
-	// 			toast.success(t("providers.serviceDetail.notifications.updateSuccess"));
-	// 		}
-	// 	} catch (error: any) {
-	// 		console.error("Error updating notification config:", error);
-	// 		toast.error(
-	// 			error.message ||
-	// 				t("providers.serviceDetail.notifications.updateError")
-	// 		);
-	// 	}
-	// };
-
-	// Fetch user provider service relation and notification config
-	const fetchData = useCallback(async () => {
-		try {
-			setLoading(true);
-
-			// TODO: Uncomment when API is ready
-			// const upsId = await fetchUserProviderService();
-			// if (upsId) {
-			// 	await fetchNotificationConfig(upsId);
-			// } else {
-			// 	setHasUserRelation(false);
-			// 	setNotificationConfig(null);
-			// }
-
-			// For now, simulate no relation
-			setHasUserRelation(false);
-			setNotificationConfig(null);
-		} catch (error) {
-			console.error("Error fetching data:", error);
-			setHasUserRelation(false);
-			setNotificationConfig(null);
-		} finally {
-			setLoading(false);
-		}
-	}, [service.id]);
-
-	useEffect(() => {
-		fetchData();
-	}, [fetchData]);
+		useState<NotificationConfig | null>(initialNotificationConfig || null);
+	const [saving, setSaving] = useState(false);
 
 	// Initialize default config if no user relation exists
-	const defaultConfig: NotificationConfig = {
-		id: "",
-		userProviderServiceId: "",
-		enabled: false,
-		mailSubject: null,
-		emailFrequency: "DAILY",
-		preferredTime: null,
-		includeBruteForce: false,
-		includeOptimized: false,
-		includeBestPractice: false,
-		includeAlternative: false,
-		includeExplanationOverview: false,
-		includeExplanationApproach: false,
-		includeStepByStep: false,
-		includeKeyInsights: false,
-		includeCommonMistakes: false,
-		includeRelatedProblems: false,
-		includeHintsProgressive: false,
-		includeHintsApproach: false,
-		includeHintsDataStructure: false,
-		includeHintsAlgorithm: false,
-		autoSubmit: false,
-		autoSubmitTime: null,
-		autoSubmitOnlyIfSolved: true,
-		autoSubmitSendConfirmation: true,
-		autoSubmitConfirmationSubject: null,
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	};
+	const defaultConfig: NotificationConfig = useMemo(
+		() => ({
+			id: "",
+			userProviderServiceId: userProviderService?.id || "",
+			enabled: false,
+			mailSubject: null,
+			emailFrequency: "DAILY",
+			preferredTime: null,
+			includeBruteForce: false,
+			includeOptimized: false,
+			includeBestPractice: false,
+			includeAlternative: false,
+			includeExplanationOverview: false,
+			includeExplanationApproach: false,
+			includeStepByStep: false,
+			includeKeyInsights: false,
+			includeCommonMistakes: false,
+			includeRelatedProblems: false,
+			includeHintsProgressive: false,
+			includeHintsApproach: false,
+			includeHintsDataStructure: false,
+			includeHintsAlgorithm: false,
+			autoSubmit: false,
+			autoSubmitTime: null,
+			autoSubmitOnlyIfSolved: true,
+			autoSubmitSendConfirmation: true,
+			autoSubmitConfirmationSubject: null,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		}),
+		[userProviderService]
+	);
+
+	// Update local state when prop changes
+	useMemo(() => {
+		if (initialNotificationConfig) {
+			setNotificationConfig(initialNotificationConfig);
+		} else {
+			setNotificationConfig(null);
+		}
+	}, [initialNotificationConfig]);
 
 	const config = notificationConfig || defaultConfig;
-	const isDisabled = loading; // Only disable during loading
+	const hasUserRelation = !!userProviderService;
+	const isDisabled = saving || contextLoading;
 
 	const handleToggle = (field: keyof NotificationConfig, value: boolean) => {
 		if (isDisabled) return;
@@ -199,12 +89,8 @@ export function ServiceNotifications({ service }: ServiceNotificationsProps) {
 			setNotificationConfig({
 				...defaultConfig,
 				[field]: value,
-				userProviderServiceId: userProviderServiceId || "",
 			});
 		}
-
-		// TODO: Uncomment when API is ready
-		// updateNotificationConfig(field, value);
 	};
 
 	const handleInputChange = (
@@ -224,22 +110,49 @@ export function ServiceNotifications({ service }: ServiceNotificationsProps) {
 			setNotificationConfig({
 				...defaultConfig,
 				[field]: value,
-				userProviderServiceId: userProviderServiceId || "",
 			});
 		}
-
-		// TODO: Uncomment when API is ready
-		// updateNotificationConfig(field, value);
 	};
 
-	const handleSave = () => {
-		const currentConfig = notificationConfig || defaultConfig;
-		console.log("Notification Configuration State:", {
-			...currentConfig,
-			hasUserRelation,
-			userProviderServiceId,
-		});
-		toast.success(t("providers.serviceDetail.notifications.saveSuccess"));
+	const handleSave = async () => {
+		try {
+			setSaving(true);
+			const currentConfig = notificationConfig || defaultConfig;
+			await updateNotificationConfig({
+				enabled: currentConfig.enabled,
+				mailSubject: currentConfig.mailSubject,
+				emailFrequency: currentConfig.emailFrequency,
+				preferredTime: currentConfig.preferredTime,
+				includeBruteForce: currentConfig.includeBruteForce,
+				includeOptimized: currentConfig.includeOptimized,
+				includeBestPractice: currentConfig.includeBestPractice,
+				includeAlternative: currentConfig.includeAlternative,
+				includeExplanationOverview:
+					currentConfig.includeExplanationOverview,
+				includeExplanationApproach:
+					currentConfig.includeExplanationApproach,
+				includeStepByStep: currentConfig.includeStepByStep,
+				includeKeyInsights: currentConfig.includeKeyInsights,
+				includeCommonMistakes: currentConfig.includeCommonMistakes,
+				includeRelatedProblems: currentConfig.includeRelatedProblems,
+				includeHintsProgressive: currentConfig.includeHintsProgressive,
+				includeHintsApproach: currentConfig.includeHintsApproach,
+				includeHintsDataStructure:
+					currentConfig.includeHintsDataStructure,
+				includeHintsAlgorithm: currentConfig.includeHintsAlgorithm,
+				autoSubmit: currentConfig.autoSubmit,
+				autoSubmitTime: currentConfig.autoSubmitTime,
+				autoSubmitOnlyIfSolved: currentConfig.autoSubmitOnlyIfSolved,
+				autoSubmitSendConfirmation:
+					currentConfig.autoSubmitSendConfirmation,
+				autoSubmitConfirmationSubject:
+					currentConfig.autoSubmitConfirmationSubject,
+			});
+		} catch (error: any) {
+			console.error("Error saving notification config:", error);
+		} finally {
+			setSaving(false);
+		}
 	};
 
 	// Define notification toggle configurations
@@ -446,7 +359,7 @@ export function ServiceNotifications({ service }: ServiceNotificationsProps) {
 		},
 	];
 
-	if (loading) {
+	if (contextLoading) {
 		return (
 			<div className="space-y-6">
 				{Array.from({ length: 5 }).map((_, i) => (
