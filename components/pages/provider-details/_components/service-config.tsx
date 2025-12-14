@@ -57,17 +57,29 @@ export function ServiceConfig({
 				defaults[key] = false;
 			} else if (prop.type === "number") {
 				defaults[key] = prop.minimum || 0;
+			} else if (prop.format === "time") {
+				// Time fields default to "09:00"
+				defaults[key] = "09:00";
+			} else if (key.toLowerCase().includes("timezone")) {
+				// Timezone fields default to "UTC"
+				defaults[key] = "UTC";
+			} else if (key.toLowerCase().includes("language")) {
+				// Language fields default to "python"
+				defaults[key] = "python";
 			} else {
+				// Other string fields default to empty string
 				defaults[key] = "";
 			}
 		});
 		return defaults;
 	}, [schema]);
 
-	// Initialize config from userProviderService or default
+	// Initialize config from userProviderService or default, merging with defaults
 	useMemo(() => {
 		if (userProviderService?.serviceConfig) {
-			setConfig(userProviderService.serviceConfig);
+			// Merge user config with defaults to ensure all fields have values
+			const mergedConfig = { ...defaultConfig, ...userProviderService.serviceConfig };
+			setConfig(mergedConfig);
 		} else {
 			setConfig(defaultConfig);
 		}
@@ -179,7 +191,7 @@ export function ServiceConfig({
 			{/* Info Banner */}
 			{!hasUserRelation && (
 				<Card className="border-primary/20 bg-primary/5 shadow-sm">
-					<CardContent className="pt-4 pb-4">
+					<CardContent className="">
 						<div className="flex items-start gap-3">
 							<div className="flex-1 space-y-1">
 								<Label className="text-sm font-semibold text-foreground">

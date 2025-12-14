@@ -39,6 +39,11 @@ model Problem {
   scrapedAt   DateTime     @default(now())
   problemDate DateTime
   
+  // Global vs User-Specific Problem Flag
+  // true = Global problem (Problem of the Day, same for everyone)
+  // false = User-specific problem (Filter-based, Random, etc. - can be linked to multiple services)
+  isGlobal    Boolean      @default(false)
+  
   // AI Formatting Metadata
   formattedAt DateTime?   // When AI formatted this problem
   aiModel     String?     // Which AI model was used (e.g., "gemini-2.0-flash")
@@ -47,11 +52,18 @@ model Problem {
   
   // Relations
   logs ProblemLog[]
+  userProviderServices UserProviderService[]  // Many-to-many: Problems can be linked to multiple services
 
-  // Unique constraint: same provider, question type, and date can only have one problem
-  @@unique([provider, questionType, problemDate])
+  // Unique constraints:
+  // 1. Prevent duplicate problem records: same provider + problemId + date = one Problem record
+  //    This allows reusing the same Problem record across multiple services via many-to-many
+  // 2. For global problems: same provider + questionType + date = one global problem
+  @@unique([provider, problemId, problemDate])  // Prevents duplicate problem records (allows reuse via many-to-many)
+  @@unique([provider, questionType, problemDate, isGlobal])  // For global problems: one per provider/type/date
   @@index([provider, questionType, problemDate])
   @@index([provider, questionType])
   @@index([questionType])
+  @@index([isGlobal, provider, questionType, problemDate])  // For querying global problems
+  @@index([provider, problemId])  // For checking if problem already exists
   @@index([formattedAt])
 }

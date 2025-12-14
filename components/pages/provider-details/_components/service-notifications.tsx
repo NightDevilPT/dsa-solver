@@ -1,6 +1,11 @@
 "use client";
 
 import {
+	ConfigToggle,
+	ConfigInput,
+	ConfigSelect,
+} from "./config-field-components";
+import {
 	ServiceNotificationsProps,
 	NotificationConfig,
 } from "@/interface/provider-details.interface";
@@ -10,7 +15,6 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "@/hooks/useTranslation";
-import { ConfigToggle, ConfigInput } from "./config-field-components";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useProviderServiceContext } from "@/components/context/provider-service-context";
 
@@ -28,15 +32,18 @@ export function ServiceNotifications({
 		useState<NotificationConfig | null>(initialNotificationConfig || null);
 	const [saving, setSaving] = useState(false);
 
+	// Check if service is DAILY_CHALLENGE
+	const isDailyChallenge = service.serviceType === "DAILY_CHALLENGE";
+
 	// Initialize default config if no user relation exists
 	const defaultConfig: NotificationConfig = useMemo(
 		() => ({
 			id: "",
 			userProviderServiceId: userProviderService?.id || "",
 			enabled: false,
-			mailSubject: null,
+			mailSubject: "DSA Solver " + service.name + " Notification",
 			emailFrequency: "DAILY",
-			preferredTime: null,
+			preferredTime: isDailyChallenge ? "09:00" : "09:00",
 			includeBruteForce: false,
 			includeOptimized: false,
 			includeBestPractice: false,
@@ -52,26 +59,80 @@ export function ServiceNotifications({
 			includeHintsDataStructure: false,
 			includeHintsAlgorithm: false,
 			autoSubmit: false,
-			autoSubmitTime: null,
-			autoSubmitOnlyIfSolved: true,
-			autoSubmitSendConfirmation: true,
-			autoSubmitConfirmationSubject: null,
+			autoSubmitTime: "09:00",
+			autoSubmitOnlyIfSolved: false,
+			autoSubmitSendConfirmation: false,
+			autoSubmitConfirmationSubject: "Solution Submitted: {problemTitle}",
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		}),
-		[userProviderService]
+		[userProviderService, isDailyChallenge, service.name]
 	);
 
 	// Update local state when prop changes
 	useMemo(() => {
 		if (initialNotificationConfig) {
-			setNotificationConfig(initialNotificationConfig);
+			// Merge with defaults to ensure all fields have values
+			const emailFreq = isDailyChallenge
+				? "DAILY"
+				: initialNotificationConfig.emailFrequency ||
+				  defaultConfig.emailFrequency;
+			const shouldHavePreferredTime = emailFreq !== "INSTANT";
+
+			const mergedConfig: NotificationConfig = {
+				...defaultConfig,
+				...initialNotificationConfig,
+				// For DAILY_CHALLENGE, ensure emailFrequency is DAILY and preferredTime is set
+				emailFrequency: emailFreq,
+				preferredTime: isDailyChallenge
+					? initialNotificationConfig.preferredTime || "09:00"
+					: shouldHavePreferredTime
+					? initialNotificationConfig.preferredTime ||
+					  defaultConfig.preferredTime
+					: null,
+				// Ensure string fields have defaults
+				mailSubject:
+					initialNotificationConfig.mailSubject ||
+					defaultConfig.mailSubject,
+				autoSubmitTime:
+					initialNotificationConfig.autoSubmitTime ||
+					defaultConfig.autoSubmitTime,
+				autoSubmitConfirmationSubject:
+					initialNotificationConfig.autoSubmitConfirmationSubject ||
+					defaultConfig.autoSubmitConfirmationSubject,
+			};
+			setNotificationConfig(mergedConfig);
 		} else {
 			setNotificationConfig(null);
 		}
-	}, [initialNotificationConfig]);
+	}, [initialNotificationConfig, isDailyChallenge, defaultConfig]);
 
-	const config = notificationConfig || defaultConfig;
+	// Merge config with defaults to ensure all fields have values
+	const config: NotificationConfig = useMemo(() => {
+		if (!notificationConfig) return defaultConfig;
+
+		const emailFreq =
+			notificationConfig.emailFrequency || defaultConfig.emailFrequency;
+		const shouldHavePreferredTime = emailFreq !== "INSTANT";
+
+		return {
+			...defaultConfig,
+			...notificationConfig,
+			// Ensure string/time fields have defaults
+			mailSubject:
+				notificationConfig.mailSubject || defaultConfig.mailSubject,
+			preferredTime: shouldHavePreferredTime
+				? notificationConfig.preferredTime ||
+				  defaultConfig.preferredTime
+				: null,
+			autoSubmitTime:
+				notificationConfig.autoSubmitTime ||
+				defaultConfig.autoSubmitTime,
+			autoSubmitConfirmationSubject:
+				notificationConfig.autoSubmitConfirmationSubject ||
+				defaultConfig.autoSubmitConfirmationSubject,
+		};
+	}, [notificationConfig, defaultConfig]);
 	const hasUserRelation = !!userProviderService;
 	const isDisabled = saving || contextLoading;
 
@@ -99,18 +160,41 @@ export function ServiceNotifications({
 	) => {
 		if (isDisabled) return;
 
-		// Optimistic update
-		if (notificationConfig) {
-			setNotificationConfig((prev) => {
-				if (!prev) return null;
-				return { ...prev, [field]: value };
-			});
+		// For DAILY_CHALLENGE, prevent changing emailFrequency
+		if (field === "emailFrequency" && isDailyChallenge) {
+			return; // Don't allow changes for DAILY_CHALLENGE
+		}
+
+		// If emailFrequency is changed to INSTANT, set preferredTime to null
+		if (field === "emailFrequency" && value === "INSTANT") {
+			// Optimistic update
+			if (notificationConfig) {
+				setNotificationConfig((prev) => {
+					if (!prev) return null;
+					return { ...prev, [field]: value, preferredTime: null };
+				});
+			} else {
+				// If no config exists, create a new one with the updated value
+				setNotificationConfig({
+					...defaultConfig,
+					[field]: value,
+					preferredTime: null,
+				});
+			}
 		} else {
-			// If no config exists, create a new one with the updated value
-			setNotificationConfig({
-				...defaultConfig,
-				[field]: value,
-			});
+			// Optimistic update
+			if (notificationConfig) {
+				setNotificationConfig((prev) => {
+					if (!prev) return null;
+					return { ...prev, [field]: value };
+				});
+			} else {
+				// If no config exists, create a new one with the updated value
+				setNotificationConfig({
+					...defaultConfig,
+					[field]: value,
+				});
+			}
 		}
 	};
 
@@ -118,11 +202,20 @@ export function ServiceNotifications({
 		try {
 			setSaving(true);
 			const currentConfig = notificationConfig || defaultConfig;
+			// For DAILY_CHALLENGE, ensure emailFrequency is DAILY and preferredTime is set
+			const finalEmailFrequency = isDailyChallenge
+				? "DAILY"
+				: currentConfig.emailFrequency;
+			const finalPreferredTime = isDailyChallenge
+				? currentConfig.preferredTime || "09:00"
+				: currentConfig.emailFrequency === "INSTANT"
+				? null
+				: currentConfig.preferredTime || "09:00";
 			await updateNotificationConfig({
 				enabled: currentConfig.enabled,
 				mailSubject: currentConfig.mailSubject,
-				emailFrequency: currentConfig.emailFrequency,
-				preferredTime: currentConfig.preferredTime,
+				emailFrequency: finalEmailFrequency,
+				preferredTime: finalPreferredTime,
 				includeBruteForce: currentConfig.includeBruteForce,
 				includeOptimized: currentConfig.includeOptimized,
 				includeBestPractice: currentConfig.includeBestPractice,
@@ -408,7 +501,7 @@ export function ServiceNotifications({
 			{/* Info Banner */}
 			{!hasUserRelation && (
 				<Card className="border-primary/20 bg-primary/5 shadow-sm">
-					<CardContent className="pt-4 pb-4">
+					<CardContent className="">
 						<div className="flex items-start gap-3">
 							<div className="flex-1 space-y-1">
 								<Label className="text-sm font-semibold text-foreground">
@@ -449,6 +542,63 @@ export function ServiceNotifications({
 						}
 						disabled={isDisabled}
 					/>
+
+					{/* Email Frequency Select */}
+					<ConfigSelect
+						title={t(
+							"providers.serviceDetail.notifications.emailFrequency"
+						)}
+						description={t(
+							"providers.serviceDetail.notifications.emailFrequencyDescription"
+						)}
+						value={config.emailFrequency}
+						onChange={(value) =>
+							handleInputChange("emailFrequency", value)
+						}
+						options={[
+							{
+								value: "INSTANT",
+								label: t(
+									"providers.serviceDetail.notifications.emailFrequencyInstant"
+								),
+							},
+							{
+								value: "DAILY",
+								label: t(
+									"providers.serviceDetail.notifications.emailFrequencyDaily"
+								),
+							},
+							{
+								value: "WEEKLY",
+								label: t(
+									"providers.serviceDetail.notifications.emailFrequencyWeekly"
+								),
+							},
+						]}
+						disabled={isDisabled || isDailyChallenge}
+					/>
+
+					{/* Preferred Time Input - Only show when emailFrequency is not INSTANT */}
+					{config.emailFrequency !== "INSTANT" && (
+						<ConfigInput
+							title={t(
+								"providers.serviceDetail.notifications.preferredTime"
+							)}
+							description={t(
+								"providers.serviceDetail.notifications.preferredTimeDescription"
+							)}
+							value={config.preferredTime || "09:00"}
+							onChange={(value) =>
+								handleInputChange(
+									"preferredTime",
+									value || null
+								)
+							}
+							type="time"
+							placeholder="09:00"
+							disabled={isDisabled}
+						/>
+					)}
 
 					{/* Mail Subject Input */}
 					<ConfigInput

@@ -12,6 +12,8 @@ import {
 import puppeteer from "puppeteer-core";
 import { Browser, Page } from "puppeteer-core";
 import { ProviderType } from "@/lib/generated/prisma/enums";
+import { promises as fs } from "fs";
+import { join } from "path";
 
 export abstract class BaseProviderService implements IProviderService {
 	protected browser: Browser | null = null;
@@ -61,75 +63,7 @@ export abstract class BaseProviderService implements IProviderService {
 		}
 
 		// Determine executable path based on environment
-		let executablePath: string | undefined;
-
-		// Check if running on Vercel (serverless environment)
-		const isVercel = process.env.VERCEL === "1" || process.env.VERCEL_ENV;
-		const isServerless = isVercel || process.env.AWS_LAMBDA_FUNCTION_NAME;
-		
-		// Check if running on Windows (Windows doesn't work with @sparticuz/chromium)
-		const isWindows = process.platform === "win32";
-		
-		// Check if CHROME_EXECUTABLE_PATH is explicitly set
-		// Try both with and without NEXT_PUBLIC_ prefix for Next.js compatibility
-		const customChromePath = process.env.CHROME_EXECUTABLE_PATH || process.env.NEXT_PUBLIC_CHROME_EXECUTABLE_PATH;
-		
-		if (customChromePath && customChromePath.trim()) {
-			// Use custom Chrome path if provided (for local development)
-			executablePath = customChromePath.trim();
-		} else if (isWindows && !isServerless) {
-			// Windows local development - try common Chrome paths first
-			const commonPaths = [
-				process.env.PROGRAMFILES ? `${process.env.PROGRAMFILES}\\Google\\Chrome\\Application\\chrome.exe` : null,
-				process.env["PROGRAMFILES(X86)"] ? `${process.env["PROGRAMFILES(X86)"]}\\Google\\Chrome\\Application\\chrome.exe` : null,
-				process.env.LOCALAPPDATA ? `${process.env.LOCALAPPDATA}\\Google\\Chrome\\Application\\chrome.exe` : null,
-				"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-				"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-				"C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
-			].filter(Boolean) as string[];
-
-			// Try to find Chrome in common locations (without using fs)
-			// Note: We can't check if file exists without fs, so we'll just try the first common path
-			// If it fails, user will get a clear error
-			executablePath = commonPaths[0] || undefined;
-
-		if (!executablePath) {
-				const examplePath = this.getExampleChromePath(process.platform);
-				throw new Error(
-					"CHROME_EXECUTABLE_PATH environment variable is required for Windows local development.\n\n" +
-					"@sparticuz/chromium doesn't work on Windows.\n\n" +
-					"SOLUTION: Create a .env file in your project root and add:\n" +
-					`CHROME_EXECUTABLE_PATH="${examplePath}"\n\n` +
-					"Then restart your dev server (npm run dev)"
-				);
-			}
-		} else {
-			// Use @sparticuz/chromium for Vercel/serverless or non-Windows systems
-			try {
-				const chromium = await import("@sparticuz/chromium");
-				// Disable graphics mode for better performance
-				chromium.default.setGraphicsMode = false;
-				executablePath = await chromium.default.executablePath();
-			} catch (error) {
-				// If @sparticuz/chromium fails, provide helpful error message
-				const platform = process.platform;
-				const examplePath = this.getExampleChromePath(platform);
-				
-				if (isServerless) {
-					throw new Error(
-						"@sparticuz/chromium is required for serverless environments. " +
-						"Install it: npm install @sparticuz/chromium"
-					);
-				} else {
-			throw new Error(
-						"Failed to initialize browser with @sparticuz/chromium.\n\n" +
-						"SOLUTION: Create a .env file in your project root and add:\n" +
-						`CHROME_EXECUTABLE_PATH="${examplePath}"\n\n` +
-						"Then restart your dev server (npm run dev)"
-					);
-				}
-			}
-		}
+		const executablePath = await this.resolveChromeExecutablePath();
 
 		// Validate executable path
 		if (!executablePath || executablePath.trim().length === 0) {
@@ -731,17 +665,82 @@ export abstract class BaseProviderService implements IProviderService {
 	}
 
 	/**
-	 * Get example Chrome path for error message
-	 * @param platform - OS platform
-	 * @returns Example path string
+	 * Resolve Chrome executable path based on environment
+	 * Simple logic: Windows + not serverless = find Chrome, otherwise use @sparticuz/chromium
+	 * @returns Promise<string> - Chrome executable path
+	 * @throws Error if path cannot be resolved
 	 */
-	private getExampleChromePath(platform: string): string {
-		if (platform === "win32") {
-			return "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-		} else if (platform === "darwin") {
-			return "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-		} else {
-			return "/usr/bin/google-chrome";
+	private async resolveChromeExecutablePath(): Promise<string> {
+		const isWindows = process.platform === "win32";
+		const isServerless = process.env.VERCEL === "1" || !!process.env.VERCEL_ENV || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+		// Windows + not serverless = find Chrome on Windows
+		if (isWindows && !isServerless) {
+			return await this.findWindowsChrome();
+		}
+
+		// Otherwise use @sparticuz/chromium
+		const chromium = await import("@sparticuz/chromium");
+		chromium.default.setGraphicsMode = false;
+		return await chromium.default.executablePath();
+	}
+
+	/**
+	 * Find Chrome or Edge on Windows by searching directories from environment variables
+	 */
+	private async findWindowsChrome(): Promise<string> {
+		const executables = ["chrome.exe", "msedge.exe"];
+		const directories: string[] = [];
+
+		// Only use environment variable-based paths (no hardcoded paths)
+		if (process.env.LOCALAPPDATA) {
+			directories.push(
+				join(process.env.LOCALAPPDATA, "Google", "Chrome", "Application"),
+				join(process.env.LOCALAPPDATA, "Microsoft", "Edge", "Application")
+			);
+		}
+
+		if (process.env.PROGRAMFILES) {
+			directories.push(
+				join(process.env.PROGRAMFILES, "Google", "Chrome", "Application"),
+				join(process.env.PROGRAMFILES, "Microsoft", "Edge", "Application")
+			);
+		}
+
+		if (process.env["PROGRAMFILES(X86)"]) {
+			directories.push(
+				join(process.env["PROGRAMFILES(X86)"], "Google", "Chrome", "Application"),
+				join(process.env["PROGRAMFILES(X86)"], "Microsoft", "Edge", "Application")
+			);
+		}
+
+		// Search directories for executables
+		for (const dir of directories) {
+			for (const exe of executables) {
+				const fullPath = join(dir, exe);
+				if (await this.fileExists(fullPath)) {
+					return fullPath;
+				}
+			}
+		}
+
+		throw new Error(
+			"Chrome or Edge not found on Windows.\n\n" +
+			"SOLUTION: Install Chrome/Edge or add to .env:\n" +
+			"CHROME_EXECUTABLE_PATH=\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\"\n\n" +
+			"Then restart your dev server."
+		);
+	}
+
+	/**
+	 * Check if a file exists
+	 */
+	private async fileExists(filePath: string): Promise<boolean> {
+		try {
+			await fs.access(filePath);
+			return true;
+		} catch {
+			return false;
 		}
 	}
 }

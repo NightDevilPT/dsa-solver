@@ -5,7 +5,6 @@
 
 import prisma from "@/lib/prisma-client";
 import { ZodError } from "zod";
-import { AIService } from "@/lib/ai-service/ai.service";
 import { NextRequest, NextResponse } from "next/server";
 import { QuestionType } from "@/lib/generated/prisma/enums";
 import { publicRoute } from "@/lib/middleware/public-route.middleware";
@@ -59,6 +58,71 @@ const scrapeDailyQuestion = async (
 			);
 		}
 
+		// Check if today's problem already exists in database
+		const today = new Date().toLocaleDateString();
+
+		const existingProblem = await prisma.problem.findFirst({
+			where: {
+				provider: providerType,
+			},
+			orderBy: {
+				formattedAt: "desc", // Get the latest formatted record
+			},
+		});
+
+		// If problem exists for today, return it directly
+		if (existingProblem) {
+			console.log("=== Using Cached Problem from Database ===");
+			console.log("Problem ID:", existingProblem.id);
+			console.log("Provider:", existingProblem.provider);
+			console.log("Title:", existingProblem.title);
+			console.log("Problem Date:", existingProblem.problemDate);
+			console.log("AI Model:", existingProblem.aiModel || "N/A");
+			console.log("Tokens Used:", existingProblem.tokensUsed || "N/A");
+			console.log("Formatted At:", existingProblem.formattedAt);
+			console.log("=========================================");
+
+			const problemDate = existingProblem.formattedAt 
+				? new Date(existingProblem.formattedAt).toLocaleDateString()
+				: null;
+			console.log("Problem Date Matching:", problemDate, today);
+
+			if (problemDate === today) {
+				return NextResponse.json({
+					data: {
+						id: existingProblem.problemId,
+						slug: existingProblem.problemSlug,
+						problemUrl: existingProblem.problemUrl,
+						title: existingProblem.title,
+						difficulty: existingProblem.difficulty,
+						topics: existingProblem.topics,
+						description: existingProblem.description,
+						examples: existingProblem.examples,
+						constraints: existingProblem.constraints,
+						isPremium: existingProblem.isPremium,
+						provider: existingProblem.provider,
+						problemDate: existingProblem.problemDate.toISOString(),
+						aiFormatted: true,
+						databaseId: existingProblem.id,
+						solutions: existingProblem.solutions,
+						explanations: existingProblem.explanations,
+						hints: existingProblem.hints,
+						tokensUsed: existingProblem.tokensUsed,
+						aiModel: existingProblem.aiModel,
+						aiConfidence: existingProblem.aiConfidence,
+						cached: true, // Indicate this is from cache
+					},
+					message:
+						"Daily question retrieved from database (already processed today)",
+				});
+			}
+		}
+
+		console.log("=== No Cached Problem Found - Starting Scrape ===");
+		console.log("Provider:", providerType);
+		console.log("Date:", today);
+		console.log("==================================================");
+
 		// Create provider service instance
 		const providerService = ProviderFactory.create(providerType);
 
@@ -69,128 +133,15 @@ const scrapeDailyQuestion = async (
 			// Close browser after scraping
 			await providerService.closeBrowser();
 
-			// Format problem with AI (Gemini)
-			const aiService = new AIService();
-			const aiResponse = await aiService.formatProblem(problem);
-
-			// Console log AI response
-			console.log("=== AI Formatting Response ===");
-			console.log(JSON.stringify(aiResponse, null, 2));
-			console.log("Tokens Used:", aiResponse.tokensUsed || "N/A");
-			console.log("==============================");
-
-			// Prepare data for database
-			const problemDate = new Date(problem.problemDate);
-			problemDate.setUTCHours(0, 0, 0, 0); // Set to start of day UTC
-
-			// Prepare JSON data for database (cast to any for Prisma JSON fields)
-			const descriptionJson =
-				aiResponse.success && aiResponse.data
-					? (aiResponse.data.problem.description as any)
-					: null;
-			const examplesJson =
-				aiResponse.success && aiResponse.data
-					? (aiResponse.data.problem.examples as any)
-					: null;
-			const constraintsJson =
-				aiResponse.success && aiResponse.data
-					? (aiResponse.data.problem.constraints as any)
-					: null;
-			const solutionsJson =
-				aiResponse.success &&
-				aiResponse.data &&
-				aiResponse.data.solutions
-					? (aiResponse.data.solutions as any)
-					: null;
-			const explanationsJson =
-				aiResponse.success &&
-				aiResponse.data &&
-				aiResponse.data.explanations
-					? (aiResponse.data.explanations as any)
-					: null;
-			const hintsJson =
-				aiResponse.success && aiResponse.data && aiResponse.data.hints
-					? (aiResponse.data.hints as any)
-					: null;
-
-			// Save to database using upsert (create or update)
-			const savedProblem = await prisma.problem.upsert({
-				where: {
-					provider_questionType_problemDate: {
-						provider: problem.provider,
-						questionType: QuestionType.PROBLEM_OF_THE_DAY,
-						problemDate: problemDate,
+			if(!problem){
+				return NextResponse.json(
+					{
+						error: "No problem found",
+						message: "No problem found for today",
 					},
-				},
-				create: {
-					provider: problem.provider,
-					questionType: QuestionType.PROBLEM_OF_THE_DAY,
-					problemId: problem.id,
-					problemSlug: problem.slug,
-					problemUrl: problem.problemUrl,
-					title: problem.title,
-					difficulty: problem.difficulty,
-					topics: problem.topics,
-					description: descriptionJson,
-					examples: examplesJson,
-					constraints: constraintsJson,
-					solutions: solutionsJson,
-					explanations: explanationsJson,
-					hints: hintsJson,
-					isPremium: problem.isPremium || false,
-					problemDate: problemDate,
-					formattedAt: aiResponse.success ? new Date() : null,
-					aiModel:
-						aiResponse.success && aiResponse.data
-							? aiResponse.data.metadata.aiModel
-							: null,
-					aiConfidence:
-						aiResponse.success && aiResponse.data
-							? aiResponse.data.metadata.confidence
-							: null,
-					tokensUsed:
-						aiResponse.success && aiResponse.tokensUsed
-							? aiResponse.tokensUsed
-							: null,
-				},
-				update: {
-					problemId: problem.id,
-					problemSlug: problem.slug,
-					problemUrl: problem.problemUrl,
-					title: problem.title,
-					difficulty: problem.difficulty,
-					topics: problem.topics,
-					description: descriptionJson ?? undefined,
-					examples: examplesJson ?? undefined,
-					constraints: constraintsJson ?? undefined,
-					solutions: solutionsJson ?? undefined,
-					explanations: explanationsJson ?? undefined,
-					hints: hintsJson ?? undefined,
-					isPremium: problem.isPremium || false,
-					formattedAt: aiResponse.success ? new Date() : undefined,
-					aiModel:
-						aiResponse.success && aiResponse.data
-							? aiResponse.data.metadata.aiModel
-							: undefined,
-					aiConfidence:
-						aiResponse.success && aiResponse.data
-							? aiResponse.data.metadata.confidence
-							: undefined,
-					tokensUsed:
-						aiResponse.success && aiResponse.tokensUsed
-							? aiResponse.tokensUsed
-							: undefined,
-				},
-			});
-
-			console.log("=== Problem Saved to Database ===");
-			console.log("Problem ID:", savedProblem.id);
-			console.log("Provider:", savedProblem.provider);
-			console.log("Title:", savedProblem.title);
-			console.log("Formatted:", savedProblem.formattedAt ? "Yes" : "No");
-			console.log("AI Model:", savedProblem.aiModel || "N/A");
-			console.log("Tokens Used:", savedProblem.tokensUsed || "N/A");
-			console.log("==================================");
+					{ status: 404 }
+				);
+			}
 
 			// Return problem data in common JSON format
 			return NextResponse.json({
@@ -206,15 +157,7 @@ const scrapeDailyQuestion = async (
 					constraints: problem.constraints,
 					isPremium: problem.isPremium || false,
 					provider: problem.provider,
-					problemDate: problem.problemDate.toISOString(),
-					aiFormatted: aiResponse.success,
-					databaseId: savedProblem.id,
-					solutions: savedProblem.solutions,
-					explanations: savedProblem.explanations,
-					hints: savedProblem.hints,
-					tokensUsed: savedProblem.tokensUsed || null,
-					aiModel: savedProblem.aiModel || null,
-					aiConfidence: savedProblem.aiConfidence || null,
+					problemDate: problem.problemDate.toISOString()
 				},
 				message:
 					"Daily question scraped, formatted, and saved successfully",

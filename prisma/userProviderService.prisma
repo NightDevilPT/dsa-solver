@@ -18,6 +18,7 @@ model UserProviderService {
   encryptedCredentials EncryptedCredentials?  // One-to-one relation with EncryptedCredentials
   scheduledTasks    ScheduledTask[]  // Scheduled tasks for this service
   problemLogs       ProblemLog[]     // Problem logs for this service
+  problems          Problem[]         // Many-to-many: User-specific problems linked to this service
 
   @@unique([userId, providerServiceId])
   @@index([userId])
