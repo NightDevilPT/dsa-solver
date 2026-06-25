@@ -26,11 +26,6 @@ export async function generateMetadata({
 	};
 }
 
-export default async function SettingLayout({ children, params }: Props) {
-	const { lang: langParam } = await params;
-	const lang = (
-		locales.includes(langParam as Locale) ? langParam : locales[0]
-	) as Locale;
-
+export default async function SettingLayout({ children }: Props) {
 	return children;
 }

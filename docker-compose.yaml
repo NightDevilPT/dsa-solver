@@ -1,66 +1,39 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
-    image: postgres:15
-    container_name: dsa-solver-postgres
-    restart: unless-stopped
+    image: postgres:17
+    container_name: dsa_solver_postgres_db
+    restart: always
     environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: dsa_solver
     ports:
-      - "5432:5435"
-    networks:
-      - dsa-solver-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
-      interval: 5s
-      timeout: 2s
-      retries: 20
-      start_period: 10s
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    command: postgres -c listen_addresses='*'
-    logging:
-      options:
-        max-size: "10m"
-        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d dsa_solver"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  nextjs:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: dev
-    container_name: dsa-solver-nextjs
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    networks:
-      - dsa-solver-network
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: dsa_solver_pgadmin_container
+    restart: always
     environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5435/postgres?schema=public
-      - NEXT_TELEMETRY_DISABLED=1
-      - WATCHPACK_POLLING=true
-      - CHOKIDAR_USEPOLLING=true
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
     volumes:
-      # Mount source code for hot-reload
-      - .:/app
-      # Exclude node_modules to use container's node_modules
-      - /app/node_modules
-      - /app/.next
+      - pgadmin_data:/var/lib/pgadmin
     depends_on:
       postgres:
         condition: service_healthy
-    command: npm run dev -- --webpack -H 0.0.0.0
-    stdin_open: true
-    tty: true
-
-networks:
-  dsa-solver-network:
-    driver: bridge
 
 volumes:
   postgres_data:
-    driver: local
+  pgadmin_data:
