@@ -8,7 +8,7 @@ import {
 	Problem,
 	ProblemExample,
 	ProblemConstraint,
-} from "@/interface/provider.interface";
+} from "@/lib/provider-service/provider.interface";
 import puppeteer from "puppeteer-core";
 import { Browser, Page } from "puppeteer-core";
 import { ProviderType } from "@/lib/generated/prisma/enums";
@@ -92,22 +92,23 @@ export abstract class BaseProviderService implements IProviderService {
 		if (process.env.VERCEL) {
 			launchOptions.args?.push(
 				"--single-process",
-				"--disable-software-rasterizer"
+				"--disable-software-rasterizer",
 			);
 		}
 
 		try {
 			this.browser = await puppeteer.launch(launchOptions);
-			
+
 			// Verify browser is actually connected
 			if (!this.browser || !this.browser.isConnected()) {
 				throw new Error("Browser launched but not connected");
 			}
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : String(error);
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
 			throw new Error(
 				`Failed to launch browser: ${errorMessage}. ` +
-				`Executable path: ${executablePath}`
+					`Executable path: ${executablePath}`,
 			);
 		}
 	}
@@ -128,32 +129,33 @@ export abstract class BaseProviderService implements IProviderService {
 		}
 
 		await this.initBrowser();
-		
+
 		if (!this.browser || !this.browser.isConnected()) {
 			throw new Error("Browser not initialized or disconnected");
 		}
 
 		try {
-		this.page = await this.browser.newPage();
+			this.page = await this.browser.newPage();
 
 			// Set default timeout for page operations
 			this.page.setDefaultTimeout(this.DEFAULT_TIMEOUT);
 			this.page.setDefaultNavigationTimeout(this.DEFAULT_TIMEOUT);
 
-		// Common page settings
-		await this.page.setViewport({ width: 1920, height: 1080 });
-		await this.page.setUserAgent(
-			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-		);
+			// Common page settings
+			await this.page.setViewport({ width: 1920, height: 1080 });
+			await this.page.setUserAgent(
+				"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+			);
 
 			// Set extra headers to avoid detection
 			await this.page.setExtraHTTPHeaders({
-				'Accept-Language': 'en-US,en;q=0.9',
+				"Accept-Language": "en-US,en;q=0.9",
 			});
 
-		return this.page;
+			return this.page;
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : String(error);
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
 			throw new Error(`Failed to create page: ${errorMessage}`);
 		}
 	}
@@ -169,12 +171,14 @@ export abstract class BaseProviderService implements IProviderService {
 		if (this.page) {
 			try {
 				if (!this.page.isClosed()) {
-			await this.page.close();
+					await this.page.close();
 				}
 			} catch (error) {
-				cleanupErrors.push(`Page close error: ${error instanceof Error ? error.message : String(error)}`);
+				cleanupErrors.push(
+					`Page close error: ${error instanceof Error ? error.message : String(error)}`,
+				);
 			} finally {
-			this.page = null;
+				this.page = null;
 			}
 		}
 
@@ -182,12 +186,14 @@ export abstract class BaseProviderService implements IProviderService {
 		if (this.browser) {
 			try {
 				if (this.browser.isConnected()) {
-			await this.browser.close();
+					await this.browser.close();
 				}
 			} catch (error) {
-				cleanupErrors.push(`Browser close error: ${error instanceof Error ? error.message : String(error)}`);
+				cleanupErrors.push(
+					`Browser close error: ${error instanceof Error ? error.message : String(error)}`,
+				);
 			} finally {
-			this.browser = null;
+				this.browser = null;
 			}
 		}
 
@@ -212,7 +218,7 @@ export abstract class BaseProviderService implements IProviderService {
 	protected async waitForElement(
 		selector: string,
 		timeout: number = this.DEFAULT_TIMEOUT,
-		retries: number = this.DEFAULT_RETRIES
+		retries: number = this.DEFAULT_RETRIES,
 	): Promise<void> {
 		if (!this.page || this.page.isClosed()) {
 			throw new Error("Page not initialized or closed");
@@ -226,19 +232,20 @@ export abstract class BaseProviderService implements IProviderService {
 
 		for (let i = 0; i < retries; i++) {
 			try {
-				await this.page.waitForSelector(selector.trim(), { 
+				await this.page.waitForSelector(selector.trim(), {
 					timeout,
 					visible: false, // Don't require visibility, just existence
 				});
 				return; // Success
 			} catch (error) {
-				const err = error instanceof Error ? error : new Error(String(error));
+				const err =
+					error instanceof Error ? error : new Error(String(error));
 				lastError.push(err);
 
 				if (i === retries - 1) {
 					throw new Error(
 						`Element not found: "${selector}" after ${retries} retries. ` +
-						`Last error: ${err.message}`
+							`Last error: ${err.message}`,
 					);
 				}
 
@@ -258,7 +265,7 @@ export abstract class BaseProviderService implements IProviderService {
 	 */
 	protected async extractText(
 		selector: string,
-		required: boolean = false
+		required: boolean = false,
 	): Promise<string> {
 		if (!this.page || this.page.isClosed()) {
 			throw new Error("Page not initialized or closed");
@@ -274,19 +281,21 @@ export abstract class BaseProviderService implements IProviderService {
 
 			const text = await this.page.$eval(
 				selector.trim(),
-				(el) => el.textContent?.trim() || ""
+				(el) => el.textContent?.trim() || "",
 			);
 
 			if (required && !text) {
-				throw new Error(`Element "${selector}" exists but has no text content`);
+				throw new Error(
+					`Element "${selector}" exists but has no text content`,
+				);
 			}
 
 			return text;
 		} catch (error) {
 			if (required) {
-			throw new Error(
-					`Failed to extract required text from "${selector}": ${error instanceof Error ? error.message : String(error)}`
-			);
+				throw new Error(
+					`Failed to extract required text from "${selector}": ${error instanceof Error ? error.message : String(error)}`,
+				);
 			}
 			// Return empty string if not required
 			return "";
@@ -304,7 +313,7 @@ export abstract class BaseProviderService implements IProviderService {
 	protected async extractElements<T>(
 		selector: string,
 		extractor: (element: Element) => T,
-		minCount: number = 0
+		minCount: number = 0,
 	): Promise<T[]> {
 		if (!this.page || this.page.isClosed()) {
 			throw new Error("Page not initialized or closed");
@@ -329,19 +338,19 @@ export abstract class BaseProviderService implements IProviderService {
 				(elements, extractFn) => {
 					return elements.map((el) => extractFn(el));
 				},
-				extractor
+				extractor,
 			);
 
 			if (results.length < minCount) {
 				throw new Error(
-					`Expected at least ${minCount} elements for "${selector}", but found ${results.length}`
+					`Expected at least ${minCount} elements for "${selector}", but found ${results.length}`,
 				);
 			}
 
 			return results;
 		} catch (error) {
 			throw new Error(
-				`Failed to extract elements from "${selector}": ${error instanceof Error ? error.message : String(error)}`
+				`Failed to extract elements from "${selector}": ${error instanceof Error ? error.message : String(error)}`,
 			);
 		}
 	}
@@ -354,7 +363,11 @@ export abstract class BaseProviderService implements IProviderService {
 	 */
 	protected async waitForNavigation(
 		timeout: number = this.DEFAULT_TIMEOUT,
-		waitUntil: "load" | "domcontentloaded" | "networkidle0" | "networkidle2" = "networkidle2"
+		waitUntil:
+			| "load"
+			| "domcontentloaded"
+			| "networkidle0"
+			| "networkidle2" = "networkidle2",
 	): Promise<void> {
 		if (!this.page || this.page.isClosed()) {
 			throw new Error("Page not initialized or closed");
@@ -362,31 +375,39 @@ export abstract class BaseProviderService implements IProviderService {
 
 		try {
 			await Promise.race([
-				this.page.waitForNavigation({ 
+				this.page.waitForNavigation({
 					waitUntil,
 					timeout,
 				}),
 				new Promise<never>((_, reject) =>
 					setTimeout(
-						() => reject(new Error(`Navigation timeout after ${timeout}ms`)),
-						timeout
-					)
+						() =>
+							reject(
+								new Error(
+									`Navigation timeout after ${timeout}ms`,
+								),
+							),
+						timeout,
+					),
 				),
 			]);
 		} catch (error) {
 			// Check if navigation actually completed
 			const currentUrl = this.page.url();
-			
+
 			// If we have a valid URL, navigation might have completed
 			if (currentUrl && currentUrl !== "about:blank") {
 				// Navigation likely completed, just log warning
-				console.warn(`Navigation wait warning (URL: ${currentUrl}):`, error instanceof Error ? error.message : String(error));
+				console.warn(
+					`Navigation wait warning (URL: ${currentUrl}):`,
+					error instanceof Error ? error.message : String(error),
+				);
 				return;
 			}
 
 			// Otherwise, throw the error
 			throw new Error(
-				`Navigation failed: ${error instanceof Error ? error.message : String(error)}`
+				`Navigation failed: ${error instanceof Error ? error.message : String(error)}`,
 			);
 		}
 	}
@@ -404,7 +425,7 @@ export abstract class BaseProviderService implements IProviderService {
 		operation: () => Promise<T>,
 		retries: number = this.DEFAULT_RETRIES,
 		delay: number = this.DEFAULT_RETRY_DELAY,
-		operationName?: string
+		operationName?: string,
 	): Promise<T> {
 		if (typeof operation !== "function") {
 			throw new Error("Operation must be a function");
@@ -418,14 +439,17 @@ export abstract class BaseProviderService implements IProviderService {
 				const result = await operation();
 				return result;
 			} catch (error) {
-				const err = error instanceof Error ? error : new Error(String(error));
+				const err =
+					error instanceof Error ? error : new Error(String(error));
 				errors.push(err);
 
 				if (i === retries - 1) {
 					// All retries exhausted
-					const errorMessages = errors.map((e, idx) => `Attempt ${idx + 1}: ${e.message}`).join("; ");
+					const errorMessages = errors
+						.map((e, idx) => `Attempt ${idx + 1}: ${e.message}`)
+						.join("; ");
 					throw new Error(
-						`${opName} failed after ${retries} retries. Errors: ${errorMessages}`
+						`${opName} failed after ${retries} retries. Errors: ${errorMessages}`,
 					);
 				}
 
@@ -433,7 +457,7 @@ export abstract class BaseProviderService implements IProviderService {
 				const backoffDelay = delay * Math.pow(2, i);
 				const jitter = Math.random() * 0.3 * backoffDelay; // Add up to 30% jitter
 				await new Promise((resolve) =>
-					setTimeout(resolve, backoffDelay + jitter)
+					setTimeout(resolve, backoffDelay + jitter),
 				);
 			}
 		}
@@ -464,14 +488,15 @@ export abstract class BaseProviderService implements IProviderService {
 		}
 
 		const examples: ProblemExample[] = [];
-		
+
 		// Match pattern: Example N:\n\nInput: ...\nOutput: ...\nExplanation: ...
 		// Using [\s\S] instead of . with 's' flag for ES compatibility
-		const exampleRegex = /Example\s+(\d+):\s*\n\s*\n\s*Input:\s*([\s\S]+?)\s*\n\s*Output:\s*([\s\S]+?)(?:\s*\n\s*Explanation:\s*([\s\S]+?))?(?=\s*\n\s*Example\s+\d+:|Constraints:|$)/g;
-		
+		const exampleRegex =
+			/Example\s+(\d+):\s*\n\s*\n\s*Input:\s*([\s\S]+?)\s*\n\s*Output:\s*([\s\S]+?)(?:\s*\n\s*Explanation:\s*([\s\S]+?))?(?=\s*\n\s*Example\s+\d+:|Constraints:|$)/g;
+
 		let match;
 		let lastIndex = 0;
-		
+
 		while ((match = exampleRegex.exec(description)) !== null) {
 			// Prevent infinite loop if regex doesn't advance
 			if (match.index === lastIndex) {
@@ -487,7 +512,9 @@ export abstract class BaseProviderService implements IProviderService {
 			// Extract image URL from input/output/explanation if present
 			let imageUrl: string | null = null;
 			const imageRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
-			const allText = [input, output, explanation].filter(Boolean).join(" ");
+			const allText = [input, output, explanation]
+				.filter(Boolean)
+				.join(" ");
 			const imageMatch = imageRegex.exec(allText);
 			if (imageMatch && imageMatch[1]) {
 				imageUrl = imageMatch[1];
@@ -495,7 +522,9 @@ export abstract class BaseProviderService implements IProviderService {
 				input = input.replace(/<img[^>]*>/gi, "").trim();
 				output = output.replace(/<img[^>]*>/gi, "").trim();
 				if (explanation) {
-					explanation = explanation.replace(/<img[^>]*>/gi, "").trim();
+					explanation = explanation
+						.replace(/<img[^>]*>/gi, "")
+						.trim();
 				}
 			}
 
@@ -532,23 +561,26 @@ export abstract class BaseProviderService implements IProviderService {
 		}
 
 		const constraints: ProblemConstraint[] = [];
-		
+
 		// Find the Constraints section
 		// Using [\s\S] instead of . with 's' flag for ES compatibility
-		const constraintsMatch = description.match(/Constraints:\s*\n\s*\n((?:[\s\S]*?[^\n]+\n?)+)/);
-		
+		const constraintsMatch = description.match(
+			/Constraints:\s*\n\s*\n((?:[\s\S]*?[^\n]+\n?)+)/,
+		);
+
 		if (constraintsMatch && constraintsMatch[1]) {
 			const constraintsText = constraintsMatch[1];
-			
+
 			// Split by lines and filter out empty lines
 			const lines = constraintsText
-				.split('\n')
-				.map(line => line.trim())
-				.filter(line => line.length > 0 && !line.match(/^\s*$/)); // Filter empty or whitespace-only lines
+				.split("\n")
+				.map((line) => line.trim())
+				.filter((line) => line.length > 0 && !line.match(/^\s*$/)); // Filter empty or whitespace-only lines
 
 			// Each line is a constraint
 			for (const line of lines) {
-				if (line.length > 0 && line.length < 500) { // Sanity check: constraint shouldn't be too long
+				if (line.length > 0 && line.length < 500) {
+					// Sanity check: constraint shouldn't be too long
 					constraints.push({
 						constraint: line,
 					});
@@ -571,18 +603,21 @@ export abstract class BaseProviderService implements IProviderService {
 
 		// Remove examples section
 		// Using [\s\S] instead of . with 's' flag for ES compatibility
-		let cleanDescription = fullDescription.replace(/Example\s+\d+:[\s\S]*?(?=Example\s+\d+:|Constraints:|$)/g, '');
-		
+		let cleanDescription = fullDescription.replace(
+			/Example\s+\d+:[\s\S]*?(?=Example\s+\d+:|Constraints:|$)/g,
+			"",
+		);
+
 		// Remove constraints section
-		cleanDescription = cleanDescription.replace(/Constraints:[\s\S]*$/, '');
-		
+		cleanDescription = cleanDescription.replace(/Constraints:[\s\S]*$/, "");
+
 		// Clean up extra whitespace and normalize line breaks
 		cleanDescription = cleanDescription
 			.trim()
-			.replace(/\n{3,}/g, '\n\n') // Replace 3+ newlines with 2
-			.replace(/[ \t]+/g, ' ') // Replace multiple spaces/tabs with single space
+			.replace(/\n{3,}/g, "\n\n") // Replace 3+ newlines with 2
+			.replace(/[ \t]+/g, " ") // Replace multiple spaces/tabs with single space
 			.trim();
-		
+
 		return cleanDescription;
 	}
 
@@ -640,9 +675,13 @@ export abstract class BaseProviderService implements IProviderService {
 		url: string,
 		baseUrl?: string,
 		options?: {
-			waitUntil?: "load" | "domcontentloaded" | "networkidle0" | "networkidle2";
+			waitUntil?:
+				| "load"
+				| "domcontentloaded"
+				| "networkidle0"
+				| "networkidle2";
 			timeout?: number;
-		}
+		},
 	): Promise<void> {
 		if (!this.page || this.page.isClosed()) {
 			throw new Error("Page not initialized or closed");
@@ -659,7 +698,7 @@ export abstract class BaseProviderService implements IProviderService {
 			});
 		} catch (error) {
 			throw new Error(
-				`Failed to navigate to ${validatedUrl}: ${error instanceof Error ? error.message : String(error)}`
+				`Failed to navigate to ${validatedUrl}: ${error instanceof Error ? error.message : String(error)}`,
 			);
 		}
 	}
@@ -672,7 +711,10 @@ export abstract class BaseProviderService implements IProviderService {
 	 */
 	private async resolveChromeExecutablePath(): Promise<string> {
 		const isWindows = process.platform === "win32";
-		const isServerless = process.env.VERCEL === "1" || !!process.env.VERCEL_ENV || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+		const isServerless =
+			process.env.VERCEL === "1" ||
+			!!process.env.VERCEL_ENV ||
+			!!process.env.AWS_LAMBDA_FUNCTION_NAME;
 
 		// Windows + not serverless = find Chrome on Windows
 		if (isWindows && !isServerless) {
@@ -695,22 +737,52 @@ export abstract class BaseProviderService implements IProviderService {
 		// Only use environment variable-based paths (no hardcoded paths)
 		if (process.env.LOCALAPPDATA) {
 			directories.push(
-				join(process.env.LOCALAPPDATA, "Google", "Chrome", "Application"),
-				join(process.env.LOCALAPPDATA, "Microsoft", "Edge", "Application")
+				join(
+					process.env.LOCALAPPDATA,
+					"Google",
+					"Chrome",
+					"Application",
+				),
+				join(
+					process.env.LOCALAPPDATA,
+					"Microsoft",
+					"Edge",
+					"Application",
+				),
 			);
 		}
 
 		if (process.env.PROGRAMFILES) {
 			directories.push(
-				join(process.env.PROGRAMFILES, "Google", "Chrome", "Application"),
-				join(process.env.PROGRAMFILES, "Microsoft", "Edge", "Application")
+				join(
+					process.env.PROGRAMFILES,
+					"Google",
+					"Chrome",
+					"Application",
+				),
+				join(
+					process.env.PROGRAMFILES,
+					"Microsoft",
+					"Edge",
+					"Application",
+				),
 			);
 		}
 
 		if (process.env["PROGRAMFILES(X86)"]) {
 			directories.push(
-				join(process.env["PROGRAMFILES(X86)"], "Google", "Chrome", "Application"),
-				join(process.env["PROGRAMFILES(X86)"], "Microsoft", "Edge", "Application")
+				join(
+					process.env["PROGRAMFILES(X86)"],
+					"Google",
+					"Chrome",
+					"Application",
+				),
+				join(
+					process.env["PROGRAMFILES(X86)"],
+					"Microsoft",
+					"Edge",
+					"Application",
+				),
 			);
 		}
 
@@ -726,9 +798,9 @@ export abstract class BaseProviderService implements IProviderService {
 
 		throw new Error(
 			"Chrome or Edge not found on Windows.\n\n" +
-			"SOLUTION: Install Chrome/Edge or add to .env:\n" +
-			"CHROME_EXECUTABLE_PATH=\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\"\n\n" +
-			"Then restart your dev server."
+				"SOLUTION: Install Chrome/Edge or add to .env:\n" +
+				'CHROME_EXECUTABLE_PATH="C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"\n\n' +
+				"Then restart your dev server.",
 		);
 	}
 

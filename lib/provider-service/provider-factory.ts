@@ -4,7 +4,7 @@
 import { GFGService } from "./providers/gfg.service";
 import { LeetCodeService } from "./providers/leetcode.service";
 import { ProviderType } from "@/lib/generated/prisma/enums";
-import { IProviderService } from "@/interface/provider.interface";
+import { IProviderService } from "@/lib/provider-service/provider.interface";
 
 export class ProviderFactory {
 	/**

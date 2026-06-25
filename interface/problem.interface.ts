@@ -5,7 +5,7 @@ import { ProviderType } from "@/lib/generated/prisma/enums";
 import type {
 	ProblemExample,
 	ProblemConstraint,
-} from "./provider.interface";
+} from "../lib/provider-service/provider.interface";
 
 /**
  * Problem Description Structure
@@ -175,4 +175,3 @@ export interface FormattedProblem {
 
 // Re-export ProblemExample and ProblemConstraint from provider.interface.ts
 export type { ProblemExample, ProblemConstraint };
-

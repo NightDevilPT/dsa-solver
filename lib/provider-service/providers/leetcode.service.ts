@@ -3,7 +3,10 @@
 
 import { BaseProviderService } from "../base/base-provider.service";
 import { ProviderType } from "@/lib/generated/prisma/enums";
-import { Credentials, Problem } from "@/interface/provider.interface";
+import {
+	Credentials,
+	Problem,
+} from "@/lib/provider-service/provider.interface";
 
 export class LeetCodeService extends BaseProviderService {
 	private readonly BASE_URL = "https://leetcode.com";
@@ -65,7 +68,7 @@ export class LeetCodeService extends BaseProviderService {
 			throw new Error(
 				`LeetCode login failed: ${
 					error instanceof Error ? error.message : String(error)
-				}`
+				}`,
 			);
 		}
 	}
@@ -96,11 +99,11 @@ export class LeetCodeService extends BaseProviderService {
 			const dailyProblemData = await this.page.evaluate(() => {
 				// Find div with class containing "w-full" and "pb-[80px]"
 				const container = Array.from(
-					document.querySelectorAll("div")
+					document.querySelectorAll("div"),
 				).find(
 					(div) =>
 						div.className.includes("w-full") &&
-						div.className.includes("pb-[80px]")
+						div.className.includes("pb-[80px]"),
 				);
 
 				if (!container) {
@@ -118,7 +121,7 @@ export class LeetCodeService extends BaseProviderService {
 
 				// Extract title
 				const titleElement = link.querySelector(
-					".text-body.text-sd-foreground .ellipsis.line-clamp-1"
+					".text-body.text-sd-foreground .ellipsis.line-clamp-1",
 				);
 				let title = "";
 				if (titleElement) {
@@ -152,7 +155,7 @@ export class LeetCodeService extends BaseProviderService {
 
 			if (!dailyProblemData || !dailyProblemData.problemUrl) {
 				throw new Error(
-					"Daily problem link not found on LeetCode problemset page."
+					"Daily problem link not found on LeetCode problemset page.",
 				);
 			}
 
@@ -172,13 +175,13 @@ export class LeetCodeService extends BaseProviderService {
 			// Topics are in: <div class="mt-2 flex flex-wrap gap-1 pl-7 a[href*="/tag/"]">
 			const topics = await this.extractElements(
 				'div.mt-2.flex.flex-wrap.gap-1.pl-7 a[href*="/tag/"]',
-				(el) => el.textContent?.trim() || ""
+				(el) => el.textContent?.trim() || "",
 			).catch(() => []);
 
 			// Extract description from problem page
 			// Description is in: <div data-track-load="description_content">
 			const fullDescription = await this.extractText(
-				'div[data-track-load="description_content"]'
+				'div[data-track-load="description_content"]',
 			).catch(() => "");
 
 			// Parse examples and constraints from description
@@ -224,7 +227,7 @@ export class LeetCodeService extends BaseProviderService {
 			throw new Error(
 				`Failed to scrape LeetCode daily problem: ${
 					error instanceof Error ? error.message : String(error)
-				}`
+				}`,
 			);
 		}
 	}
