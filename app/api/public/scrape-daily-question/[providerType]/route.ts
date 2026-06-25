@@ -13,7 +13,7 @@ import { scrapeDailyQuestionSchema } from "@/lib/validation/scrape.schema";
 
 const scrapeDailyQuestion = async (
 	request: NextRequest,
-	params?: { [key: string]: string }
+	params?: { [key: string]: string },
 ): Promise<NextResponse> => {
 	try {
 		// Get providerType from route params
@@ -23,7 +23,7 @@ const scrapeDailyQuestion = async (
 					error: "Missing providerType parameter",
 					message: "providerType route parameter is required",
 				},
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -41,7 +41,7 @@ const scrapeDailyQuestion = async (
 					error: "Validation failed",
 					message: error.issues[0]?.message || "Invalid providerType",
 				},
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -54,7 +54,7 @@ const scrapeDailyQuestion = async (
 					error: "Unsupported provider",
 					message: `Provider ${providerType} is not supported`,
 				},
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -82,7 +82,7 @@ const scrapeDailyQuestion = async (
 			console.log("Formatted At:", existingProblem.formattedAt);
 			console.log("=========================================");
 
-			const problemDate = existingProblem.formattedAt 
+			const problemDate = existingProblem.formattedAt
 				? new Date(existingProblem.formattedAt).toLocaleDateString()
 				: null;
 			console.log("Problem Date Matching:", problemDate, today);
@@ -133,13 +133,13 @@ const scrapeDailyQuestion = async (
 			// Close browser after scraping
 			await providerService.closeBrowser();
 
-			if(!problem){
+			if (!problem) {
 				return NextResponse.json(
 					{
 						error: "No problem found",
 						message: "No problem found for today",
 					},
-					{ status: 404 }
+					{ status: 404 },
 				);
 			}
 
@@ -157,7 +157,7 @@ const scrapeDailyQuestion = async (
 					constraints: problem.constraints,
 					isPremium: problem.isPremium || false,
 					provider: problem.provider,
-					problemDate: problem.problemDate.toISOString()
+					problemDate: problem.problemDate.toISOString(),
 				},
 				message:
 					"Daily question scraped, formatted, and saved successfully",
@@ -181,7 +181,7 @@ const scrapeDailyQuestion = async (
 						? error.message
 						: "An unexpected error occurred while scraping",
 			},
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 };

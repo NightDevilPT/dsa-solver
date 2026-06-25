@@ -13,11 +13,7 @@ model UserProviderService {
 
   // Relations
   user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  providerService   ProviderService   @relation(fields: [providerServiceId], references: [id], onDelete: Cascade)
   notificationConfig NotificationConfig?  // One-to-one relation with NotificationConfig
-  encryptedCredentials EncryptedCredentials?  // One-to-one relation with EncryptedCredentials
-  scheduledTasks    ScheduledTask[]  // Scheduled tasks for this service
-  problemLogs       ProblemLog[]     // Problem logs for this service
   problems          Problem[]         // Many-to-many: User-specific problems linked to this service
 
   @@unique([userId, providerServiceId])

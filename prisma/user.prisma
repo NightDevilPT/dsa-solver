@@ -17,9 +17,7 @@ model User {
   updatedAt       DateTime  @updatedAt
 
   userProviderServices UserProviderService[]  // Service configurations per user
-  scheduledTasks    ScheduledTask[]
   authTokens        AuthToken[]
-  problemLogs       ProblemLog[]
 
   @@index([email])
 }

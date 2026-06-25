@@ -51,7 +51,6 @@ model Problem {
   tokensUsed  Int?        // Number of tokens used for formatting (for cost optimization)
   
   // Relations
-  logs ProblemLog[]
   userProviderServices UserProviderService[]  // Many-to-many: Problems can be linked to multiple services
 
   // Unique constraints:

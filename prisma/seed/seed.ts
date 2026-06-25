@@ -25,25 +25,6 @@ export async function main() {
 		console.log("🗑️  Cleaning all existing records...");
 
 		// Delete dependent records first
-		console.log("  → Deleting ProblemLog records...");
-		const deletedProblemLogs = await prisma.problemLog.deleteMany({});
-		console.log(
-			`    ✅ Deleted ${deletedProblemLogs.count} ProblemLog records`
-		);
-
-		console.log("  → Deleting ScheduledTask records...");
-		const deletedScheduledTasks = await prisma.scheduledTask.deleteMany({});
-		console.log(
-			`    ✅ Deleted ${deletedScheduledTasks.count} ScheduledTask records`
-		);
-
-		console.log("  → Deleting EncryptedCredentials records...");
-		const deletedCredentials = await prisma.encryptedCredentials.deleteMany(
-			{}
-		);
-		console.log(
-			`    ✅ Deleted ${deletedCredentials.count} EncryptedCredentials records`
-		);
 
 		console.log("  → Deleting NotificationConfig records...");
 		const deletedNotifications = await prisma.notificationConfig.deleteMany(
